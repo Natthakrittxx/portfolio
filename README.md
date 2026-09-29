@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Natthakrit Benjapatanamongkol · Portfolio
 
-## Getting Started
+Personal portfolio: education, experience, research (Focus), projects, and contact links.
+Built with Next.js 16, Tailwind v4, and plain CSS tokens (`tokens.css`). Theme: Aurora, dark and light.
 
-First, run the development server:
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun install
+bun dev        # http://localhost:3000
+bun run build  # production build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Page facts live in `app/content.ts`; brand icons in `app/icons.ts`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Revision log
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+AI helped build this site. Each entry records a place where I changed what it produced, and why. Newest first.
 
-## Learn More
+<!-- TODO: check each "Why" is in your own words before submitting. -->
 
-To learn more about Next.js, take a look at the following resources:
+### 2026-09-29 · Rebuilt in the Aurora theme
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **AI:** Built the first version of this site as a “model card” page in a separate project.
+- **Me:** Started over in this project with the Aurora theme, keeping the facts and none of the old layout or styles.
+- **Why:** _Reason to be written._
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 2026-09-29 · NeoCare description
 
-## Deploy on Vercel
+- **AI:** Could not read the NeoCare chatbot: Cloudflare blocks access from outside Thailand (HTTP 403).
+- **Me:** Wrote the project description myself: staff and service-team support built on LLM + RAG.
+- **Why:** Nothing on the page should be guessed; facts the AI could not verify come from me.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 2026-09-29 · Research section
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **AI:** Left the research section as an empty placeholder.
+- **Me:** Chose Focus, the project I am currently building, and asked for it as a write-up without a link.
+- **Why:** The repository is private and still in progress; the method and findings matter more than the code.
+
+### 2026-09-29 · About section
+
+- **AI:** Drafted the About section from the assignment brief.
+- **Me:** Added my Chinese name, 陳其骏, and my KMITL program.
+- **Why:** Personal details are mine to state, not the model’s to infer.
+# portfolio
