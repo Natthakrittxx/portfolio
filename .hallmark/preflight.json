@@ -1,0 +1,9 @@
+{
+  "date": "2026-09-29",
+  "framework": "Next.js 16.3.6 app router, React 19.2 (package.json)",
+  "css": "Tailwind v4 via @tailwindcss/postcss; @import \"tailwindcss\" kept at top of app/globals.css",
+  "fonts": "Geist + Geist Mono via next/font/google (app/layout.tsx); Sentient via Fontshare <link>",
+  "palette": "create-next-app defaults replaced by Aurora tokens in tokens.css",
+  "motion": "no motion library; CSS only",
+  "content_source": "../web-port/app/content.ts (facts only)"
+}

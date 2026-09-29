@@ -1,26 +1,1110 @@
+/* Hallmark · genre: atmospheric · macrostructure: Marquee Hero · theme: Aurora · enrichment: E5 hand-built diagram (Tier A, HTML + CSS) · nav: N10-style bottom bar · footer: Ft5
+ * tone: technical · anchor hue: 198 cyan · audience: AI devs + course grader · use: open a project
+ * H1 knobs: size=xl (≤ 5.5rem), alignment=left-bias, underlay=none · nav: N10-style scroll-settle bar, bottom-anchored (studied: kstoimenov.com)
+ * heads: S2 hanging (Education, Experience, Work) · Education + Experience share one dated timeline · revision log lives in README.md · C3 knobs: underline=solid, hover=colour shift, arrow=↗
+ * Ft5 knobs: width=28ch, wordmark=under sentence, rule=none
+ * motion (3 primitives): hero typed on load + caret · Fig. 1 signal flow once in view · link / nav colour state
+ * Hallmark · pre-emit critique: P4 H5 E4 S5 R4 V4
+ */
 @import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@import "../tokens.css";
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--color-paper);
+  --color-foreground: var(--color-ink);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-code);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ---------- Base ---------- */
+
+html,
+body {
+  overflow-x: clip;
+}
+
+html {
+  scroll-padding-top: var(--space-xl);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-paper);
+  color: var(--color-muted);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Two fixed cyan blooms. Static, ~25 % of the canvas, behind everything. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(48rem 34rem at 88% -8%, color-mix(in oklch, var(--color-bloom-a) 30%, transparent), transparent 70%),
+    radial-gradient(40rem 30rem at -6% 104%, color-mix(in oklch, var(--color-bloom-b) 16%, transparent), transparent 70%);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-style: normal;
+  color: var(--color-ink);
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.mono {
+  font-family: var(--font-code);
+  font-size: var(--text-sm);
+  letter-spacing: 0;
+}
+
+.section {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+}
+
+/* ---------- Links (C3 typographic) ---------- */
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  min-block-size: 2.75rem;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color var(--dur-micro) var(--ease-out);
+}
+
+/* Underline the words only, so the icon / arrow never gets its own stub. */
+.link__label {
+  text-decoration: underline;
+  text-decoration-thickness: var(--rule-hair);
+  text-underline-offset: 0.3em;
+  text-decoration-color: var(--color-rule-strong);
+  transition: text-decoration-color var(--dur-micro) var(--ease-out);
+}
+
+.link__icon {
+  flex: none;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+}
+
+@media (hover: hover) {
+  .link:hover {
+    color: var(--color-ink);
+  }
+
+  .link:hover .link__label {
+    text-decoration-color: var(--color-accent);
+  }
+}
+
+.link:active {
+  transform: translateY(1px);
+}
+
+/* ---------- Nav: bottom glass bar that settles in as you scroll ----------
+   Pattern studied from kstoimenov.com's ScrollNav (rebuilt with this site's tokens, no code copied).
+   --p goes 0 → 1 over the first 12rem of scroll (desktop, motion allowed, browser supports
+   scroll-driven animation). Everywhere else --p stays 1: the settled bar. */
+
+@property --p {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+.nav {
+  position: fixed;
+  inset-inline: 0;
+  inset-block-end: max(var(--space-sm), env(safe-area-inset-bottom));
+  z-index: var(--z-nav);
+  isolation: isolate;
+  width: max-content;
+  max-width: calc(100% - 2 * var(--space-sm));
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  block-size: var(--nav-height);
+  padding: var(--space-2xs);
+  transform: translateY(calc((1 - var(--p)) * 2rem));
+}
+
+/* The glass bar itself: a layer behind the items so it can fade without fading the text. */
+.nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: color-mix(in srgb, var(--color-paper-2) 72%, transparent);
+  backdrop-filter: blur(12px) saturate(140%);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-bar);
+  box-shadow: 0 0.625rem 2.125rem color-mix(in srgb, var(--color-shadow) 35%, transparent);
+  opacity: var(--p);
+  transform: scaleX(calc(0.9 + 0.1 * var(--p)));
+}
+
+.nav__list {
+  display: flex;
+  gap: var(--space-3xs);
+  list-style: none;
+}
+
+.nav__link,
+.nav__theme {
+  position: relative;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  block-size: calc(var(--nav-height) - 2 * var(--space-2xs));
+  border-radius: var(--radius-chip);
+  color: var(--color-ink);
+  transform: translateX(calc(var(--dx, 0rem) * (1 - var(--p))));
+}
+
+/* Chip behind the hovered / current item. Hidden until the bar has settled in. */
+.nav__link::before,
+.nav__theme::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--color-paper-3);
+  opacity: calc(var(--chip, 0) * var(--p));
+  transition: opacity var(--dur-short) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .nav__link:hover,
+  .nav__theme:hover {
+    --chip: 0.6;
+  }
+}
+
+.nav__link[aria-current] {
+  --chip: 1;
+}
+
+.nav__link {
+  padding-inline: var(--space-xs);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.nav__theme {
+  inline-size: 2.25rem;
+  cursor: pointer;
+}
+
+.nav__link:active,
+.nav__theme:active {
+  translate: 0 1px;
+}
+
+/* Sun shows in dark mode (click → light), moon in light mode. Crossfade on switch. */
+.nav__icon {
+  grid-area: 1 / 1;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: opacity var(--dur-short) var(--ease-out);
+}
+
+.nav__icon--moon,
+:root[data-theme="light"] .nav__icon--sun {
+  opacity: 0;
+}
+
+:root[data-theme="light"] .nav__icon--moon {
+  opacity: 1;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .nav__icon--sun {
+    opacity: 0;
+  }
+
+  :root:not([data-theme]) .nav__icon--moon {
+    opacity: 1;
+  }
+}
+
+@media (min-width: 40rem) {
+  .nav {
+    inset-block-end: max(var(--space-xl), env(safe-area-inset-bottom));
+    gap: var(--space-xs);
+    padding-inline: var(--space-xs);
+  }
+
+  .nav__link {
+    padding-inline: var(--space-sm);
+    font-size: var(--text-base);
+    font-weight: 300;
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  @media (min-width: 40rem) and (prefers-reduced-motion: no-preference) {
+    .nav {
+      animation: nav-settle linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 12rem;
+    }
+  }
+}
+
+@keyframes nav-settle {
+  from {
+    --p: 0;
+  }
+  to {
+    --p: 1;
+  }
+}
+
+/* ---------- Hero / About (H1 marquee) ---------- */
+
+.hero {
+  min-block-size: 86svh;
+  display: grid;
+  /* Centred vertically: spare height splits above and below instead of piling up on top. */
+  align-content: center;
+  gap: var(--space-xl);
+  padding-block: var(--space-2xl) var(--space-3xl);
+}
+
+/* Desktop: the hero fills the screen so the unsettled nav (no bar yet) floats over the hero's
+   empty bottom padding, never over the next section's text. */
+@media (min-width: 40rem) {
+  .hero {
+    min-block-size: 100svh;
+  }
+}
+
+/* The hero is one terminal session: whoami → name, cat profile.yml → details, idle prompt. */
+.hero__who {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.hero__name {
+  font-family: var(--font-code);
+  font-size: var(--text-display);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.hero__name span {
+  display: block;
+}
+
+/* One left edge: name, then Chinese name, then the terminal block. */
+.hero__foot {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-lg);
+}
+
+.hero__zh {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-accent);
+}
+
+.term,
+.term__line {
+  font-family: var(--font-code);
+  font-size: var(--text-sm);
+  line-height: 1.7;
+  color: var(--color-ink);
+}
+
+.term {
+  display: grid;
+  gap: var(--space-3xs);
+}
+
+@media (min-width: 40rem) {
+  .term,
+  .term__line {
+    font-size: var(--text-base);
+  }
+}
+
+.term__prompt {
+  color: var(--color-accent);
+}
+
+.term__out {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: 1ch;
+}
+
+.term__out div {
+  display: contents;
+}
+
+.term__out dt {
+  color: var(--color-neutral);
+}
+
+.term__caret {
+  display: inline-block;
+  inline-size: 1ch;
+  block-size: 1.1em;
+  vertical-align: text-bottom;
+  background: var(--color-accent);
+  animation: caret 1s steps(2, jump-none) infinite;
+}
+
+@keyframes caret {
+  to {
+    opacity: 0;
+  }
+}
+
+/* ---------- Work ---------- */
+
+.work {
+  display: grid;
+  gap: var(--space-2xl);
+  padding-block: 0 var(--space-3xl);
+}
+
+/* S2 hanging head */
+.head-hang {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.head-hang h2 {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  justify-self: start;
+  padding: var(--space-3xs) var(--space-sm);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--color-neutral);
+  white-space: nowrap;
+}
+
+.tag--research {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* Research write-up: open layout, no card. */
+.research {
+  display: grid;
+  gap: var(--space-xl);
+}
+
+.research__text {
+  display: grid;
+  gap: var(--space-md);
+  max-width: var(--measure);
+}
+
+.research h3 {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.research__lead {
+  font-size: var(--text-md);
+  line-height: 1.45;
+  color: var(--color-ink);
+}
+
+.facts {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.facts dt {
+  margin-block-end: var(--space-2xs);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-neutral);
+}
+
+.facts dd.mono {
+  color: var(--color-ink);
+}
+
+@media (min-width: 60rem) {
+  .facts {
+    grid-template-columns: minmax(0, 0.7fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-xl);
+  }
+}
+
+/* Figure: the Focus alert gate. Vertical tree on phones, left-to-right flow from 48rem. */
+.gate {
+  display: grid;
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+  background: var(--color-paper-2);
+  border-radius: var(--radius-card);
+}
+
+.gate__flow {
+  display: grid;
+  justify-items: start;
+}
+
+.gate__inputs {
+  position: relative;
+  display: grid;
+  gap: var(--space-xs);
+  padding-inline-start: var(--space-lg);
+  list-style: none;
+}
+
+/* The bus every input joins. */
+.gate__inputs::before {
+  content: "";
+  position: absolute;
+  inset-block: calc(var(--node-height) / 2) 0;
+  inset-inline-start: var(--space-xs);
+  border-inline-start: var(--rule-hair) solid var(--color-rule-strong);
+}
+
+.gate__inputs li,
+.gate__node {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  block-size: var(--node-height);
+  padding-inline: var(--space-sm);
+  background: var(--color-paper-3);
+  border: var(--rule-hair) solid var(--color-paper-3);
+  border-radius: var(--radius-node);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+
+/* Tick from the bus to each input. */
+.gate__inputs li::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: calc(100% + var(--rule-hair));
+  inline-size: calc(var(--space-lg) - var(--space-xs));
+  border-block-start: var(--rule-hair) solid var(--color-rule-strong);
+}
+
+.gate__inputs li.is-open {
+  background: transparent;
+  border: var(--rule-hair) dashed var(--color-rule-strong);
+  color: var(--color-muted);
+}
+
+.gate__inputs li.is-open::before {
+  border-block-start-style: dashed;
+}
+
+.gate__note {
+  font-family: var(--font-display);
+  color: var(--color-neutral);
+}
+
+.gate__wire {
+  position: relative;
+  display: block;
+  block-size: var(--space-lg);
+  margin-inline-start: var(--space-xs);
+  border-inline-start: var(--rule-hair) solid var(--color-rule-strong);
+}
+
+/* Arrowhead pointing down (phone) / right (from 48rem). */
+.gate__wire::after {
+  content: "";
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-start: calc(-4px - var(--rule-hair) / 2);
+  border: 4px solid transparent;
+  border-block-end: 0;
+  border-block-start: 6px solid var(--color-rule-strong);
+}
+
+.gate__node--out {
+  background: transparent;
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+.gate figcaption {
+  max-width: var(--measure);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--color-neutral);
+}
+
+@media (min-width: 48rem) {
+  .gate {
+    padding: var(--space-xl);
+  }
+
+  .gate__flow {
+    grid-template-columns:
+      max-content minmax(var(--space-lg), 1fr) max-content minmax(var(--space-lg), 1fr)
+      max-content minmax(var(--space-lg), 1fr) max-content;
+    align-items: center;
+  }
+
+  .gate__inputs {
+    padding-inline: 0 var(--space-lg);
+  }
+
+  .gate__inputs::before {
+    inset-block: calc(var(--node-height) / 2);
+    inset-inline: auto 0;
+  }
+
+  .gate__inputs li::before {
+    inset-inline: 100% auto;
+    inline-size: calc(var(--space-lg) + var(--rule-hair));
+  }
+
+  .gate__wire {
+    justify-self: stretch;
+    block-size: 0;
+    margin-inline: 0 var(--space-2xs);
+    border-inline-start: 0;
+    border-block-start: var(--rule-hair) solid var(--color-rule-strong);
+  }
+
+  .gate__wire::after {
+    inset-block: calc(-4px - var(--rule-hair) / 2) auto;
+    inset-inline: auto -1px;
+    border: 4px solid transparent;
+    border-inline-end: 0;
+    border-inline-start: 6px solid var(--color-rule-strong);
+  }
+}
+
+/* Projects: elevated cards, deliberately unequal widths. */
+.projects {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.card {
+  display: grid;
+  align-content: start;
+  gap: var(--space-md);
+  padding: var(--space-xl) var(--space-lg);
+  background: var(--color-paper-2);
+  border-radius: var(--radius-card);
+}
+
+.card h3 {
+  font-size: var(--text-md);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.card__task {
+  color: var(--color-ink);
+}
+
+.card__facts {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.card__facts dt {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-neutral);
+}
+
+.card__facts dd.mono {
+  color: var(--color-ink);
+}
+
+.card__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-lg);
+  margin-block-start: var(--space-xs);
+  list-style: none;
+}
+
+.card__links li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.card__links .note {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--color-neutral);
+  white-space: nowrap;
+}
+
+@media (min-width: 40rem) {
+  .card {
+    padding: var(--space-xl);
+  }
+}
+
+@media (min-width: 60rem) {
+  .projects {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  }
+}
+
+/* ---------- Education + Experience (one timeline grammar, date column from 60rem) ---------- */
+
+.timeline {
+  display: grid;
+  gap: var(--space-xl);
+  padding-block: 0 var(--space-3xl);
+}
+
+.timeline__list {
+  display: grid;
+  gap: var(--space-xl);
+  list-style: none;
+}
+
+.dated {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.dated__when,
+.more__year {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--color-neutral);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.dated__body {
+  display: grid;
+  gap: var(--space-xs);
+  max-width: var(--measure);
+}
+
+.dated h3 {
+  font-size: var(--text-md);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.dated__title {
+  font-family: var(--font-display);
+  color: var(--color-accent);
+  text-wrap: balance;
+}
+
+.dated__facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--space-2xs) var(--space-md);
+  margin-block-start: var(--space-2xs);
+}
+
+.dated__facts div {
+  display: contents;
+}
+
+.dated__facts dt {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--color-neutral);
+}
+
+.dated__facts dd {
+  color: var(--color-ink);
+  text-wrap: balance;
+}
+
+.dated ul {
+  display: grid;
+  gap: var(--space-xs);
+  padding-inline-start: var(--space-md);
+  list-style: disc;
+}
+
+.dated li::marker {
+  color: var(--color-rule-strong);
+}
+
+.dated strong {
+  font-weight: 500;
+  color: var(--color-ink);
+}
+
+/* Skills: an endless logo strip on the page background. Hover or focus pauses it. */
+.marquee {
+  overflow: hidden;
+  padding-block: var(--space-md);
+  /* Fade the strip out at both edges. */
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-ink) var(--space-2xl),
+    var(--color-ink) calc(100% - var(--space-2xl)),
+    transparent
+  );
+}
+
+.marquee__track {
+  display: flex;
+  inline-size: max-content;
+  animation: marquee 40s linear infinite;
+}
+
+.marquee:focus-within .marquee__track {
+  animation-play-state: paused;
+}
+
+@media (hover: hover) {
+  .marquee:hover .marquee__track {
+    animation-play-state: paused;
+  }
+}
+
+/* Trailing padding equals the gap, so two groups side by side tile with no seam. */
+.marquee__group {
+  display: flex;
+  gap: var(--space-xl);
+  padding-inline-end: var(--space-xl);
+  list-style: none;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.skill {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+
+.skill__icon {
+  flex: none;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  color: var(--color-muted);
+}
+
+/* ---------- More projects (compact rows, no cards) ---------- */
+
+.more {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.more__title {
+  font-size: var(--text-md);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.more__list {
+  display: grid;
+  gap: var(--space-lg);
+  list-style: none;
+}
+
+.more__row {
+  display: grid;
+  gap: var(--space-2xs);
+}
+
+.more__body {
+  display: grid;
+  gap: var(--space-2xs);
+  max-width: var(--measure);
+}
+
+.more__body h4 {
+  font-weight: 500;
+}
+
+.more__stack {
+  color: var(--color-neutral);
+  text-wrap: balance;
+}
+
+@media (min-width: 60rem) {
+  .more__row {
+    grid-template-columns: 10rem minmax(0, 1fr) minmax(0, 16rem);
+    align-items: baseline;
+    column-gap: var(--space-xl);
+  }
+}
+
+/* ---------- Contact (Ft5 statement) ---------- */
+
+.foot {
+  display: grid;
+  gap: var(--space-xl);
+  /* Bottom room so the fixed nav bar never covers the last line. */
+  padding-block: var(--space-3xl) calc(var(--nav-height) + var(--space-3xl));
+}
+
+.foot__line {
+  max-width: 22ch;
+  font-size: var(--text-xl);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.foot__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-xl);
+  list-style: none;
+  font-size: var(--text-md);
+}
+
+.foot__links .link {
+  gap: var(--space-xs);
+}
+
+.foot__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs) var(--space-md);
+  padding-block-start: var(--space-lg);
+  font-size: var(--text-sm);
+  color: var(--color-neutral);
+}
+
+.foot__readme {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 1.5rem;
+  color: var(--color-neutral);
+  text-decoration: underline;
+  text-decoration-thickness: var(--rule-hair);
+  text-underline-offset: 0.25em;
+  text-decoration-color: var(--color-rule-strong);
+  white-space: nowrap;
+  transition: color var(--dur-micro) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .foot__readme:hover {
+    color: var(--color-ink);
+  }
+}
+
+.foot__meta .wordmark {
+  font-family: var(--font-body);
+  font-weight: 500;
+  color: var(--color-ink);
+}
+
+/* ---------- Motion: hero typed on load ---------- */
+
+/* Each char pops in at its --t; output blocks fade in fast at theirs. Opacity only. */
+.type-char {
+  animation: type-in var(--dur-micro) steps(1, start) both;
+  animation-delay: var(--t);
+}
+
+.type-out {
+  animation: type-in var(--dur-short) var(--ease-out) both;
+  animation-delay: var(--t);
+}
+
+@keyframes type-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---------- Motion: Fig. 1 signal flow, once, when [data-inview] lands ---------- */
+
+/* Accent outline over each node; stays lit once the signal reaches it. */
+.gate__inputs li::after,
+.gate__node::after {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--rule-hair));
+  border: var(--rule-hair) solid var(--color-accent);
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The condition still under test stays dashed when lit. */
+.gate__inputs li.is-open::after {
+  border-style: dashed;
+}
+
+/* Accent line drawn over each wire (down on phones, across from 48rem). */
+.gate__wire::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(-1 * var(--rule-hair));
+  border-inline-start: var(--rule-hair) solid var(--color-accent);
+  transform: scaleY(0);
+  transform-origin: top;
+}
+
+@media (min-width: 48rem) {
+  .gate__wire::before {
+    inset-block: calc(-1 * var(--rule-hair)) auto;
+    inset-inline: 0;
+    border-inline-start: 0;
+    border-block-start: var(--rule-hair) solid var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+}
+
+[data-inview] .gate__inputs li::after,
+[data-inview] .gate__node::after {
+  animation: lit var(--dur-short) var(--ease-out) both;
+  animation-delay: var(--t);
+}
+
+[data-inview] .gate__wire::before {
+  animation: draw var(--dur-short) var(--ease-in-out) both;
+  animation-delay: var(--t);
+}
+
+[data-inview] .gate__node--out::after {
+  animation: ping var(--dur-long) var(--ease-out) both;
+  animation-delay: var(--t);
+}
+
+@keyframes lit {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes draw {
+  to {
+    transform: none;
+  }
+}
+
+@keyframes ping {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.3);
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    mask-image: none;
+  }
+
+  .marquee__track {
+    inline-size: auto;
+  }
+
+  .marquee__group {
+    flex-wrap: wrap;
+    row-gap: var(--space-md);
+    padding-inline-end: 0;
+  }
+
+  .marquee__group[aria-hidden] {
+    display: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 150ms !important;
+    transition-duration: 150ms !important;
+  }
+
+  .marquee__track,
+  .term__caret,
+  .type-char,
+  .type-out,
+  .gate__inputs li::after,
+  .gate__node::after,
+  .gate__wire::before {
+    animation: none !important;
+  }
 }
