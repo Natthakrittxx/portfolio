@@ -25,6 +25,23 @@ function toggleTheme() {
   }
 }
 
+// Displacement map for the nav's edge refraction (#nav-refract). R moves sampling sideways, G up and
+// down, 50% grey = none. Each edge band pulls the backdrop inward like the rim of a lens. Bands are
+// fixed 16px, not stretched, so the rim stays the same thickness at any bar width.
+const refractMap =
+  "data:image/svg+xml," +
+  encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg">
+<linearGradient id="l"><stop stop-color="#f00"/><stop offset="1" stop-color="#800000"/></linearGradient>
+<linearGradient id="r"><stop stop-color="#80ffff"/><stop offset="1" stop-color="#0ff"/></linearGradient>
+<linearGradient id="t" x2="0" y2="1"><stop stop-color="#0f0"/><stop offset="1" stop-color="#008000"/></linearGradient>
+<linearGradient id="b" x2="0" y2="1"><stop stop-color="#ff80ff"/><stop offset="1" stop-color="#f0f"/></linearGradient>
+<rect width="100%" height="100%" fill="#808000"/>
+<rect width="16" height="100%" fill="url(#l)" style="mix-blend-mode:lighten"/>
+<rect x="100%" width="16" height="100%" transform="translate(-16)" fill="url(#r)" style="mix-blend-mode:darken"/>
+<rect width="100%" height="16" fill="url(#t)" style="mix-blend-mode:lighten"/>
+<rect y="100%" width="100%" height="16" transform="translate(0 -16)" fill="url(#b)" style="mix-blend-mode:darken"/>
+</svg>`);
+
 export function Nav({ links }: { links: NavLink[] }) {
   const [active, setActive] = useState<string | null>(null);
 
@@ -80,6 +97,13 @@ export function Nav({ links }: { links: NavLink[] }) {
           </li>
         ))}
       </ul>
+      {/* Used by .nav::before's backdrop-filter in Chromium (see [data-refract] in globals.css). */}
+      <svg className="nav__defs" aria-hidden="true" focusable="false">
+        <filter id="nav-refract" x="0" y="0" width="1" height="1" colorInterpolationFilters="sRGB">
+          <feImage href={refractMap} preserveAspectRatio="none" result="map" />
+          <feDisplacementMap in="SourceGraphic" in2="map" scale="16" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </svg>
     </nav>
   );
 }

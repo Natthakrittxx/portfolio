@@ -155,19 +155,41 @@ h4 {
   transform: translateY(calc((1 - var(--p)) * 2rem));
 }
 
-/* The glass bar itself: a layer behind the items so it can fade without fading the text. */
+/* The glass bar itself: a layer behind the items so it can fade without fading the text.
+   Liquid glass: a thin see-through tint, saturated backdrop, and lit edges (bright top-left rim,
+   dim bottom-right return, soft inner glow) so it reads as a thick pane rather than frosted fill. */
 .nav::before {
+  --glass-hi: light-dark(oklch(100% 0 0 / 0.75), oklch(100% 0 0 / 0.24));
+  --glass-lo: light-dark(oklch(100% 0 0 / 0.22), oklch(100% 0 0 / 0.06));
   content: "";
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: color-mix(in srgb, var(--color-paper-2) 72%, transparent);
-  backdrop-filter: blur(12px) saturate(140%);
-  border: var(--rule-hair) solid var(--color-rule);
+  background:
+    linear-gradient(to bottom, var(--glass-lo), transparent 60%),
+    color-mix(in srgb, var(--color-paper) 80%, transparent);
+  backdrop-filter: blur(8px) saturate(180%);
+  border: var(--rule-hair) solid color-mix(in srgb, var(--color-rule) 55%, transparent);
   border-radius: var(--radius-bar);
-  box-shadow: 0 0.625rem 2.125rem color-mix(in srgb, var(--color-shadow) 35%, transparent);
+  box-shadow:
+    inset 1px 1px 0 var(--glass-hi),
+    inset -1px -1px 0 var(--glass-lo),
+    inset 0 0 1rem var(--glass-lo),
+    0 0.625rem 2.125rem color-mix(in srgb, var(--color-shadow) 35%, transparent);
   opacity: var(--p);
   transform: scaleX(calc(0.9 + 0.1 * var(--p)));
+}
+
+/* Chromium only (flag set in layout.tsx): bend the backdrop at the bar's edges like a lens.
+   Other engines can't run SVG filters in backdrop-filter, so they keep the plain blur above. */
+:root[data-refract] .nav::before {
+  backdrop-filter: url(#nav-refract) blur(8px) saturate(180%);
+}
+
+.nav__defs {
+  position: absolute;
+  inline-size: 0;
+  block-size: 0;
 }
 
 .nav__list {

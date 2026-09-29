@@ -25,10 +25,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {/* Runs before first paint:
             1. Re-apply a saved dark choice (light is the default).
             2. Always land on the name: drop any #section left in the URL by the nav, and stop the
-               browser restoring the old scroll position on reload. */}
+               browser restoring the old scroll position on reload.
+            3. Flag Chromium (userAgentData is Chromium-only), the one engine that runs SVG filters in
+               backdrop-filter, so the nav glass can refract. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}if("scrollRestoration"in history)history.scrollRestoration="manual";if(location.hash)history.replaceState(null,"",location.pathname+location.search)})()`,
+            __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}if("scrollRestoration"in history)history.scrollRestoration="manual";if(location.hash)history.replaceState(null,"",location.pathname+location.search);if(navigator.userAgentData)document.documentElement.dataset.refract=""})()`,
           }}
         />
         {/* Sentient (body serif) is on Fontshare, not Google Fonts, so next/font/google can't load it. */}
