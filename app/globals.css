@@ -230,7 +230,7 @@ h4 {
   translate: 0 1px;
 }
 
-/* Sun shows in dark mode (click → light), moon in light mode. Crossfade on switch. */
+/* Moon shows in light mode (click → dark), sun in dark mode. Crossfade on switch. */
 .nav__icon {
   grid-area: 1 / 1;
   inline-size: 1.25rem;
@@ -243,23 +243,13 @@ h4 {
   transition: opacity var(--dur-short) var(--ease-out);
 }
 
-.nav__icon--moon,
-:root[data-theme="light"] .nav__icon--sun {
+.nav__icon--sun,
+:root[data-theme="dark"] .nav__icon--moon {
   opacity: 0;
 }
 
-:root[data-theme="light"] .nav__icon--moon {
+:root[data-theme="dark"] .nav__icon--sun {
   opacity: 1;
-}
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme]) .nav__icon--sun {
-    opacity: 0;
-  }
-
-  :root:not([data-theme]) .nav__icon--moon {
-    opacity: 1;
-  }
 }
 
 @media (min-width: 40rem) {

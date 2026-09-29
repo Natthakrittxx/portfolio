@@ -16,8 +16,7 @@ const owner: Record<string, string | null> = {
 // Flips the effective theme and remembers it. The inline script in layout.tsx re-applies it on load.
 function toggleTheme() {
   const root = document.documentElement;
-  const current = root.dataset.theme ?? (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
-  const next = current === "light" ? "dark" : "light";
+  const next = root.dataset.theme === "dark" ? "light" : "dark";
   root.dataset.theme = next;
   try {
     localStorage.setItem("theme", next);

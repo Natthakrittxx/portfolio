@@ -1,10 +1,10 @@
 /* Hallmark · tokens · theme: Aurora · genre: atmospheric
  * axes: paper dark (L 16%) · display geometric-sans (Geist 600) · accent cool cyan (H 198)
- * light mode: paper L 97.5% · accent L 47% (system setting, or pinned by the nav toggle)
+ * light mode: paper L 97.5% · accent L 47% (the default; dark only via the nav toggle)
  */
 :root {
-  /* Follows the system by default; the nav toggle pins one via data-theme (saved in localStorage). */
-  color-scheme: light dark;
+  /* Light by default. The nav toggle switches to dark via data-theme (saved in localStorage). */
+  color-scheme: light;
 
   /* Colour — light-dark(<light>, <dark>). Cyan anchor in both modes.
      Dark: elevation = lighter surface. Light: elevation = slightly darker tint.
@@ -74,10 +74,6 @@
   --z-base: 1;
   --z-sticky: 200;
   --z-nav: 300;
-}
-
-:root[data-theme="light"] {
-  color-scheme: light;
 }
 
 :root[data-theme="dark"] {

@@ -22,10 +22,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <head>
-        {/* Re-apply a saved light/dark choice before first paint. No choice saved = follow the system. */}
+        {/* Runs before first paint:
+            1. Re-apply a saved dark choice (light is the default).
+            2. Always land on the name: drop any #section left in the URL by the nav, and stop the
+               browser restoring the old scroll position on reload. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}})()`,
+            __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}if("scrollRestoration"in history)history.scrollRestoration="manual";if(location.hash)history.replaceState(null,"",location.pathname+location.search)})()`,
           }}
         />
         {/* Sentient (body serif) is on Fontshare, not Google Fonts, so next/font/google can't load it. */}
