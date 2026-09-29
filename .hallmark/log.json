@@ -1,6 +1,16 @@
 [
   {
     "date": "2026-09-29",
+    "scope": "section: contact (redesign)",
+    "macrostructure": "Marquee Hero",
+    "theme": "Aurora",
+    "genre": "atmospheric",
+    "footer": "Ft5 Statement + hairline index rows with visible handles",
+    "enrichment": "none",
+    "brief": "Contact section: show handles, fill empty right half, email second to match the closing line"
+  },
+  {
+    "date": "2026-09-29",
     "macrostructure": "Marquee Hero",
     "theme": "Aurora",
     "genre": "atmospheric",

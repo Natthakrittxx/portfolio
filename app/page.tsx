@@ -45,6 +45,8 @@ const HERO = {
 };
 // Fig. 1: runs once when the figure is half on screen.
 const GATE = { input: 90, wire1: 540, hold: 760, wire2: 880, dwell: 1100, wire3: 1220, alert: 1440 };
+// Contact: runs once when the footer is half on screen. Rows print one after another; each handle types out.
+const CONTACT = { row: 160, handle: 120, step: 24 };
 
 function Typed({ text, start, step }: { text: string; start: number; step: number }) {
   return (
@@ -283,10 +285,20 @@ export default function Home() {
 
       <footer id="contact" className="section foot">
         <h2 className="foot__line">Find the code on GitHub, or say hello.</h2>
+        {/* Index rows: the whole row is the link; the handle is visible so it can be read or copied. */}
         <ul className="foot__links">
-          {contact.map((l) => (
+          {contact.map((l, i) => (
             <li key={l.href}>
-              <OutLink link={l} />
+              <a className="foot__row type-out" href={l.href} style={at(i * CONTACT.row)}>
+                <BrandIcon name={l.label} className="foot__icon" />
+                <span className="foot__label">{l.label}</span>
+                <span className="foot__handle">
+                  <Typed text={l.handle ?? ""} start={i * CONTACT.row + CONTACT.handle} step={CONTACT.step} />
+                </span>
+                <span className="foot__arrow" aria-hidden="true">
+                  {l.href.startsWith("mailto:") ? "→" : "↗"}
+                </span>
+              </a>
             </li>
           ))}
         </ul>
@@ -297,6 +309,7 @@ export default function Home() {
             Revision log (README)
           </a>
         </p>
+        <InViewFlag id="contact" />
       </footer>
     </>
   );

@@ -2,8 +2,8 @@
  * tone: technical · anchor hue: 198 cyan · audience: AI devs + course grader · use: open a project
  * H1 knobs: size=xl (≤ 5.5rem), alignment=left-bias, underlay=none · nav: N10-style scroll-settle bar, bottom-anchored (studied: kstoimenov.com)
  * heads: S2 hanging (Education, Experience, Work) · Education + Experience share one dated timeline · revision log lives in README.md · C3 knobs: underline=solid, hover=colour shift, arrow=↗
- * Ft5 knobs: width=28ch, wordmark=under sentence, rule=none
- * motion (3 primitives): hero typed on load + caret · Fig. 1 signal flow once in view · link / nav colour state
+ * Ft5 knobs: width=22ch, wordmark=under sentence, rule=none · links=hairline index rows with visible handles, statement-left / index-right from 60rem
+ * motion (3 primitives): hero typed on load + caret (contact handles replay it once in view) ·Fig. 1 signal flow once in view · link / nav colour state
  * Hallmark · pre-emit critique: P4 H5 E4 S5 R4 V4
  */
 @import "tailwindcss";
@@ -379,8 +379,9 @@ h4 {
 .term__caret {
   display: inline-block;
   inline-size: 1ch;
-  block-size: 1.1em;
-  vertical-align: text-bottom;
+  /* Sized and seated to the "$" glyph's ink in Geist Mono (measured: 0.88em tall, 0.08em under the baseline). */
+  block-size: 0.88em;
+  vertical-align: -0.08em;
   background: var(--color-accent);
   animation: caret 1s steps(2, jump-none) infinite;
 }
@@ -916,17 +917,117 @@ h4 {
   letter-spacing: -0.03em;
 }
 
+/* Contact index: one hairline row per link. Mobile stacks label over handle; from 40rem the
+   handles line up in one column, like the key: value block in the hero. */
 .foot__links {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0 var(--space-xl);
   list-style: none;
-  font-size: var(--text-md);
+  border-block-start: var(--rule-hair) solid var(--color-rule);
 }
 
-.foot__links .link {
-  gap: var(--space-xs);
+.foot__links li {
+  border-block-end: var(--rule-hair) solid var(--color-rule);
+}
+
+.foot__row {
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3xs) var(--space-sm);
+  min-block-size: 4rem;
+  padding-block: var(--space-sm);
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.foot__icon {
+  grid-area: 1 / 1 / 3 / 2;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  color: var(--color-accent);
+}
+
+.foot__label {
+  grid-area: 1 / 2;
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* Spans under the arrow too, so the longest handle fits one line at 320px. */
+.foot__handle {
+  grid-area: 2 / 2 / 3 / 4;
+  font-family: var(--font-code);
+  font-size: var(--text-sm);
+  color: var(--color-neutral);
+  overflow-wrap: anywhere;
+  transition: color var(--dur-micro) var(--ease-out);
+}
+
+.foot__arrow {
+  grid-area: 1 / 3;
+  font-size: var(--text-md);
+  line-height: 1;
+  color: var(--color-neutral);
+  transition:
+    color var(--dur-micro) var(--ease-out),
+    transform var(--dur-short) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .foot__row:hover .foot__label,
+  .foot__row:hover .foot__arrow {
+    color: var(--color-accent);
+  }
+
+  .foot__row:hover .foot__handle {
+    color: var(--color-ink);
+  }
+
+  .foot__row:hover .foot__arrow {
+    transform: translate(0.125rem, -0.125rem);
+  }
+}
+
+.foot__row:active {
+  transform: translateY(1px);
+}
+
+@media (min-width: 40rem) {
+  .foot__row {
+    grid-template-columns: 1.5rem 7.5rem minmax(0, 1fr) auto;
+    column-gap: var(--space-md);
+  }
+
+  .foot__icon {
+    grid-area: 1 / 1;
+  }
+
+  .foot__label {
+    grid-area: 1 / 2;
+  }
+
+  .foot__handle {
+    grid-area: 1 / 3;
+  }
+
+  .foot__arrow {
+    grid-area: 1 / 4;
+  }
+}
+
+/* Desktop: the statement holds the left, the index fills the right; meta runs full width below. */
+@media (min-width: 60rem) {
+  .foot {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+    column-gap: var(--space-2xl);
+    align-items: start;
+  }
+
+  .foot__meta {
+    grid-column: 1 / -1;
+  }
 }
 
 .foot__meta {
@@ -979,6 +1080,14 @@ h4 {
 @keyframes type-in {
   from {
     opacity: 0;
+  }
+}
+
+/* Contact replays the same typing once the footer is half on screen (InViewFlag sets [data-inview]).
+   Held only when scripts run, so without JS the links simply show. */
+@media (scripting: enabled) {
+  .foot:not([data-inview]) :is(.type-char, .type-out) {
+    animation-play-state: paused;
   }
 }
 

@@ -1,7 +1,7 @@
 // All page facts live here. Sourced from ../web-port/app/content.ts (facts only, no layout or style)
 // and Natthakrit_Resume_edu.pdf (education, experience, extra projects, skills, email).
 
-export type Link = { label: string; href: string; note?: string };
+export type Link = { label: string; href: string; note?: string; handle?: string };
 export type Fact = { key: string; value: string; mono?: boolean };
 
 export const person = {
@@ -189,9 +189,15 @@ export const moreProjects = [
 ];
 
 // Facebook is left out until there is a real profile URL (no dead links).
+// Order follows the footer line: GitHub, then "say hello" (email). The handle is shown so the
+// address can be read or copied even where mailto: opens nothing.
 export const contact: Link[] = [
-  { label: "GitHub", href: "https://github.com/Natthakrittxx" },
-  { label: "LinkedIn", href: "https://www.linkedin.com/in/natthakrit-benjapatanamongkol-bb1385379" },
-  { label: "Instagram", href: "https://www.instagram.com/natthakrittx" },
-  { label: "Email", href: "mailto:pornatthakritbenja@gmail.com" },
+  { label: "GitHub", href: "https://github.com/Natthakrittxx", handle: "Natthakrittxx" },
+  { label: "Email", href: "mailto:pornatthakritbenja@gmail.com", handle: "pornatthakritbenja@gmail.com" },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/natthakrit-benjapatanamongkol-bb1385379",
+    handle: "Natthakrit Benjapatanamongkol",
+  },
+  { label: "Instagram", href: "https://www.instagram.com/natthakrittx", handle: "@natthakrittx" },
 ];
