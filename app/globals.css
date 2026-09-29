@@ -267,7 +267,8 @@ h4 {
 }
 
 @supports (animation-timeline: scroll()) {
-  @media (min-width: 40rem) and (prefers-reduced-motion: no-preference) {
+  /* min-height: on short screens (landscape phones) the hero outgrows the viewport, so the bar-less nav would sit on its text. */
+  @media (min-width: 40rem) and (min-height: 40rem) and (prefers-reduced-motion: no-preference) {
     .nav {
       animation: nav-settle linear both;
       animation-timeline: scroll(root);
