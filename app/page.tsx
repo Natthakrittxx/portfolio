@@ -13,6 +13,7 @@ import {
   type Link,
 } from "./content";
 import { InViewFlag, Nav } from "./client";
+import { FluidGlass } from "./fluid-glass";
 import { brandIcons } from "./icons";
 
 const sections = [
@@ -114,6 +115,7 @@ export default function Home() {
 
       <main>
         <section id="about" className="section hero" aria-label="About">
+          <FluidGlass />
           <div className="hero__who">
             <p className="term__line" aria-hidden="true">
               <span className="term__prompt">$</span> <Typed text="whoami" start={HERO.whoami} step={HERO.whoamiStep} />

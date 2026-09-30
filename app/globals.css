@@ -311,6 +311,7 @@ h4 {
 /* ---------- Hero / About (H1 marquee) ---------- */
 
 .hero {
+  position: relative; /* holds the .fluid-glass canvas */
   min-block-size: 86svh;
   display: grid;
   /* Centred vertically: spare height splits above and below instead of piling up on top. */
@@ -1084,6 +1085,21 @@ h4 {
   font-family: var(--font-body);
   font-weight: 500;
   color: var(--color-ink);
+}
+
+/* ---------- Motion: liquid glass cursor trail (fluid-glass.tsx) ---------- */
+
+/* WebGL layer over the hero only: its full height, bled out to the full viewport width (the section
+   itself stops at --page-max), scrolling away with it. Under the nav; clicks pass straight through. */
+.fluid-glass {
+  position: absolute;
+  inset-block: 0;
+  inset-inline: calc(50% - 50vw);
+  block-size: 100%;
+  inline-size: 100vw;
+  z-index: var(--z-fx);
+  pointer-events: none;
+  color: var(--color-accent); /* the ink; fluid-glass.tsx reads it */
 }
 
 /* ---------- Motion: hero typed on load ---------- */

@@ -73,6 +73,7 @@
   /* Z — named levels only */
   --z-base: 1;
   --z-sticky: 200;
+  --z-fx: 250;
   --z-nav: 300;
 }
 
