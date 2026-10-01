@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,6 +13,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Sentient (body serif) is from Fontshare (ITF Free Font License), self-hosted so it ships with the
+// page: no third-party stylesheet blocking first paint, and a metric-matched fallback while it loads.
+const sentient = localFont({
+  src: [
+    { path: "./fonts/sentient-400.woff2", weight: "400" },
+    { path: "./fonts/sentient-500.woff2", weight: "500" },
+  ],
+  variable: "--font-sentient",
+  adjustFontFallback: "Times New Roman",
+});
+
 export const metadata: Metadata = {
   title: "Natthakrit Benjapatanamongkol · Robotics and AI",
   description:
@@ -20,7 +32,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} ${sentient.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         {/* Runs before first paint:
             1. Re-apply a saved dark choice (light is the default).
@@ -33,9 +49,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}if("scrollRestoration"in history)history.scrollRestoration="manual";if(location.hash)history.replaceState(null,"",location.pathname+location.search);if(navigator.userAgentData)document.documentElement.dataset.refract=""})()`,
           }}
         />
-        {/* Sentient (body serif) is on Fontshare, not Google Fonts, so next/font/google can't load it. */}
-        <link rel="preconnect" href="https://cdn.fontshare.com" crossOrigin="anonymous" />
-        <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=sentient@400,500&display=swap" />
       </head>
       <body>{children}</body>
     </html>

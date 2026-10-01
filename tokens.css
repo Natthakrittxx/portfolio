@@ -27,7 +27,7 @@
   /* Type — Geist display, Sentient body, Geist Mono for identifiers + stacks.
      CJK fallbacks sit in the display stack so 陳其骏 renders in a sans. */
   --font-display: var(--font-geist-sans), "PingFang SC", "Noto Sans CJK SC", sans-serif;
-  --font-body: "Sentient", ui-serif, serif;
+  --font-body: var(--font-sentient), ui-serif, serif;
   --font-code: var(--font-geist-mono), ui-monospace, monospace;
 
   /* Five sizes, major third off a 17px body. Display capped at 5.5rem. */

@@ -12,15 +12,15 @@ import { useEffect, useRef } from "react";
 const CONFIG = {
   SIM_RESOLUTION: 128,
   DYE_RESOLUTION: 1024,
-  DENSITY_DISSIPATION: 2.5, // how fast the glass thins out: gone in about 4.4 / this seconds
+  DENSITY_DISSIPATION: 3.5, // how fast the glass thins out: gone in about 4.4 / this seconds
   VELOCITY_DISSIPATION: 3, // how fast the swirl calms down
   PRESSURE: 0.1,
   PRESSURE_ITERATIONS: 20,
-  CURL: 3,
+  CURL: 1,
   SPLAT_RADIUS: 0.2,
-  SPLAT_FORCE: 6000,
-  SPLAT_AMOUNT: 0.15, // glass added per frame of movement
-  INK_OPACITY: 0.45, // accent ink at full thickness; 0 = clear glass
+  SPLAT_FORCE: 3500,
+  SPLAT_AMOUNT: 0.08, // glass added per frame of movement
+  INK_OPACITY: 0.25, // accent ink at full thickness; 0 = clear glass
   IDLE_MS: 3000, // stop the loop this long after the last move (keep it past the fade-out)
 };
 
@@ -142,33 +142,50 @@ const SHADERS = {
 type Target = { tex: WebGLTexture; fb: WebGLFramebuffer; w: number; h: number };
 type Pair = { read: Target; write: Target; swap(): void };
 type Uniform = number | [number, number] | [number, number, number] | Target;
+type Program = { p: WebGLProgram; uniforms: Record<string, WebGLUniformLocation | null> };
 
 function start(canvas: HTMLCanvasElement): (() => void) | undefined {
   const gl = canvas.getContext("webgl2", { alpha: true, premultipliedAlpha: true, antialias: false, depth: false });
   if (!gl || !gl.getExtension("EXT_color_buffer_float")) return; // ponytail: no WebGL2 float targets = no effect
 
+  // Shaders build in the GPU process, and any status query makes the page wait for it (300ms+ on a
+  // cold GPU, right in the load). So start every compile and link now, and read results back only once
+  // KHR_parallel_shader_compile says they're done. Without the extension, the first read just blocks.
+  const parallel = gl.getExtension("KHR_parallel_shader_compile");
   const compile = (type: number, src: string) => {
     const s = gl.createShader(type)!;
     gl.shaderSource(s, src);
     gl.compileShader(s);
-    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s) ?? "shader");
     return s;
   };
   const vert = compile(gl.VERTEX_SHADER, VERT);
-  const progs = Object.fromEntries(
-    Object.entries(SHADERS).map(([name, src]) => {
-      const p = gl.createProgram()!;
-      gl.attachShader(p, vert);
-      gl.attachShader(p, compile(gl.FRAGMENT_SHADER, src));
-      gl.linkProgram(p);
-      const uniforms: Record<string, WebGLUniformLocation | null> = {};
-      for (let i = 0; i < gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); i++) {
-        const u = gl.getActiveUniform(p, i)!.name;
-        uniforms[u] = gl.getUniformLocation(p, u);
-      }
-      return [name, { p, uniforms }];
-    }),
-  ) as Record<keyof typeof SHADERS, { p: WebGLProgram; uniforms: Record<string, WebGLUniformLocation | null> }>;
+  const linking = Object.entries(SHADERS).map(([name, src]) => {
+    const p = gl.createProgram()!;
+    gl.attachShader(p, vert);
+    gl.attachShader(p, compile(gl.FRAGMENT_SHADER, src));
+    gl.linkProgram(p);
+    return [name, p] as const;
+  });
+  type Programs = Record<keyof typeof SHADERS, Program>;
+  let progs: Programs | undefined;
+  // The linked programs, or undefined while the GPU is still building them.
+  const programs = () => {
+    if (progs || (parallel && !linking.every(([, p]) => gl.getProgramParameter(p, parallel.COMPLETION_STATUS_KHR)))) {
+      return progs;
+    }
+    progs = Object.fromEntries(
+      linking.map(([name, p]) => {
+        if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p) || "shader");
+        const uniforms: Program["uniforms"] = {};
+        for (let i = 0; i < gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); i++) {
+          const u = gl.getActiveUniform(p, i)!.name;
+          uniforms[u] = gl.getUniformLocation(p, u);
+        }
+        return [name, { p, uniforms }];
+      }),
+    ) as Programs;
+    return progs;
+  };
 
   // One full-screen quad, drawn for every pass.
   gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
@@ -223,7 +240,7 @@ function start(canvas: HTMLCanvasElement): (() => void) | undefined {
   // Runs one program into `out` (null = the canvas). Textures get units in order. texelSize is the sim
   // grid's (dye advection too: velocity is in sim texels), except display, which reads the finer dye.
   const pass = (name: keyof typeof SHADERS, out: Target | null, uniforms: Record<string, Uniform>) => {
-    const { p, uniforms: loc } = progs[name];
+    const { p, uniforms: loc } = progs![name];
     gl.useProgram(p);
     const grid = name === "display" ? dye.read : velocity.read;
     gl.uniform2f(loc.texelSize, 1 / grid.w, 1 / grid.h);
@@ -291,6 +308,10 @@ function start(canvas: HTMLCanvasElement): (() => void) | undefined {
   let lastMove = 0;
 
   const frame = (t: number) => {
+    if (!programs()) {
+      raf = requestAnimationFrame(frame); // shaders still building: moves made meanwhile splat once they're in
+      return;
+    }
     const dt = Math.min((t - lastFrame) / 1000, 1 / 60);
     lastFrame = t;
     if (delta && pointer) splat(pointer.x, pointer.y, delta.dx * CONFIG.SPLAT_FORCE, delta.dy * CONFIG.SPLAT_FORCE);
@@ -354,11 +375,11 @@ function start(canvas: HTMLCanvasElement): (() => void) | undefined {
 }
 
 // Mouse and trackpad only (touch drags scroll the page), and only when motion is welcome.
-export function FluidGlass() {
+export function BubbleTrail() {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     if (!ref.current || !matchMedia("(pointer: fine) and (prefers-reduced-motion: no-preference)").matches) return;
     return start(ref.current);
   }, []);
-  return <canvas ref={ref} className="fluid-glass" aria-hidden="true" />;
+  return <canvas ref={ref} className="bubble-trail" aria-hidden="true" />;
 }
