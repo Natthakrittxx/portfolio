@@ -1,13 +1,12 @@
-/* Hallmark · tokens · theme: Aurora · genre: atmospheric
- * axes: paper dark (L 16%) · display geometric-sans (Geist 600) · accent cool cyan (H 198)
+/* Hallmark · tokens · theme: custom (Terminal type system on the Aurora palette) · genre: atmospheric
+ * axes: paper light (L 97.5%, dark via toggle) · display mono (Geist Mono 600) · accent cool cyan (H 198)
  * light mode: paper L 97.5% · accent L 47% (the default; dark only via the nav toggle)
  */
 :root {
   /* Light by default. The nav toggle switches to dark via data-theme (saved in localStorage). */
   color-scheme: light;
 
-  /* Colour — light-dark(<light>, <dark>). Cyan anchor in both modes.
-     Dark: elevation = lighter surface. Light: elevation = slightly darker tint.
+  /* Colour — light-dark(<light>, <dark>). Cyan anchor in both modes. Flat: no blooms, no glass.
      Contrast checked in both: body text ≥ 8:1, secondary ≥ 4.9:1, accent text ≥ 4.8:1 on every surface. */
   --color-paper: light-dark(oklch(97.5% 0.008 220), oklch(16% 0.016 225));
   --color-paper-2: light-dark(oklch(94.5% 0.012 220), oklch(20% 0.02 222));
@@ -20,22 +19,25 @@
   --color-accent: light-dark(oklch(47% 0.11 210), oklch(84% 0.11 198));
   --color-accent-ink: light-dark(oklch(98% 0.01 210), oklch(20% 0.03 220));
   --color-focus: light-dark(oklch(50% 0.13 205), oklch(88% 0.13 195));
-  --color-bloom-a: light-dark(oklch(82% 0.09 205), oklch(58% 0.12 205));
-  --color-bloom-b: light-dark(oklch(86% 0.08 170), oklch(60% 0.11 170));
   --color-shadow: light-dark(oklch(35% 0.02 225), oklch(5% 0.01 225));
 
-  /* Type — Geist display, Sentient body, Geist Mono for identifiers + stacks.
-     CJK fallbacks sit in the display stack so 陳其骏 renders in a sans. */
-  --font-display: var(--font-geist-sans), "PingFang SC", "Noto Sans CJK SC", sans-serif;
-  --font-body: var(--font-sentient), ui-serif, serif;
-  --font-code: var(--font-geist-mono), ui-monospace, monospace;
+  /* Type — one monospace face for everything; the terminal look is the design.
+     Box-drawing glyphs (─ ├ └) aren't in Geist Mono's latin subset, so they fall through to the
+     system mono (SF Mono / Menlo / Consolas / DejaVu), same cell width. CJK last for 陳其骏. */
+  --font-code:
+    var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", "PingFang SC",
+    "Noto Sans CJK SC", monospace;
 
-  /* Five sizes, major third off a 17px body. Display capped at 5.5rem. */
+  /* Five sizes, tuned for mono (wider glyphs than the old serif body). Display capped at 5.5rem. */
   --text-sm: 0.8125rem;
-  --text-base: 1.0625rem;
-  --text-md: 1.375rem;
-  --text-xl: clamp(1.75rem, 1.2rem + 2.2vw, 2.75rem);
+  --text-base: 1rem;
+  --text-md: 1.25rem;
+  --text-xl: clamp(1.375rem, 1.1rem + 1.2vw, 2rem);
   --text-display: clamp(1.5rem, 8.2vw, 5.5rem);
+
+  /* ASCII fills: long runs clipped to their box, so a rule or leader stretches to any width. */
+  --ascii-hr: "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────";
+  --ascii-dots: "................................................................................................";
 
   /* Space — 4pt scale */
   --space-3xs: 0.125rem;
@@ -51,15 +53,10 @@
 
   --page-gutter: clamp(1rem, 4vw, 3rem);
   --page-max: 76rem;
-  --measure: 62ch;
-  --nav-height: 3.375rem;
+  --measure: 66ch;
+  --nav-height: 3rem;
   --node-height: 2.25rem;
 
-  --radius-pill: 999px;
-  --radius-card: 1.25rem;
-  --radius-node: 0.625rem;
-  --radius-bar: 1rem;
-  --radius-chip: 0.5rem;
   --rule-hair: 1px;
 
   /* Motion */
@@ -69,12 +66,17 @@
   --dur-micro: 120ms;
   --dur-short: 220ms;
   --dur-long: 420ms;
+  /* Ask panel slide: long, soft landing (iOS-sheet-style curve); closing eases both ends. */
+  --dur-sheet: 700ms;
+  --dur-sheet-close: 480ms;
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
 
   /* Z — named levels only */
   --z-base: 1;
   --z-sticky: 200;
   --z-fx: 250;
   --z-nav: 300;
+  --z-modal: 400;
 }
 
 :root[data-theme="dark"] {

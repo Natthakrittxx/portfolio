@@ -1,10 +1,13 @@
-/* Hallmark · genre: atmospheric · macrostructure: Marquee Hero · theme: Aurora · enrichment: E5 hand-built diagram (Tier A, HTML + CSS) · nav: N10-style bottom bar · footer: Ft5
+/* Hallmark · genre: atmospheric · macrostructure: Marquee Hero · theme: custom (Terminal type system on the Aurora palette) · redesign --mood terminal
  * tone: technical · anchor hue: 198 cyan · audience: AI devs + course grader · use: open a project
- * H1 knobs: size=xl (≤ 5.5rem), alignment=left-bias, underlay=none · nav: N10-style scroll-settle bar, bottom-anchored (studied: kstoimenov.com)
- * heads: S2 hanging (Education, Experience, Work) · Education + Experience share one dated timeline · revision log lives in README.md · C3 knobs: underline=solid, hover=colour shift, arrow=↗
- * Ft5 knobs: width=22ch, wordmark=under sentence, rule=none · links=hairline index rows with visible handles, statement-left / index-right from 60rem
- * motion (3 primitives): hero typed on load + caret (contact handles replay it once in view) ·Fig. 1 signal flow once in view · link / nav colour state
- * Hallmark · pre-emit critique: P4 H5 E4 S5 R4 V4
+ * axes: paper light (dark via toggle) / mono (Geist Mono only) / cool cyan
+ * nav: N8 Terminal command as a tmux-style status line, bottom-fixed (prompt shows the current section as a directory)
+ * footer: Ft5 Statement kept · index rows with dot leaders
+ * ASCII language: ── title ──── section rules · tree lines under timeline entries · key: value facts · [ link ↗ ] brackets
+ *   · TUI panels with the tag set into the top border · > prompts in Ask
+ * enrichment: E5 hand-built diagram (Fig. 1), square nodes · liquid-glass bubble trail kept in the hero
+ * motion (3 primitives): hero typed on load + caret (contact handles replay it once in view) · Fig. 1 signal flow once in view · link / nav colour state
+ * Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V5
  */
 @import "tailwindcss";
 @import "../tokens.css";
@@ -12,7 +15,7 @@
 @theme inline {
   --color-background: var(--color-paper);
   --color-foreground: var(--color-ink);
-  --font-sans: var(--font-body);
+  --font-sans: var(--font-code);
   --font-mono: var(--font-code);
 }
 
@@ -25,6 +28,8 @@ body {
 
 html {
   scroll-padding-top: var(--space-xl);
+  /* Keeps the scrollbar's space when the Ask panel locks scrolling, so the page doesn't shift sideways. */
+  scrollbar-gutter: stable;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -36,30 +41,23 @@ html {
 body {
   background: var(--color-paper);
   color: var(--color-muted);
-  font-family: var(--font-body);
+  font-family: var(--font-code);
   font-size: var(--text-base);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Two fixed cyan blooms. Static, ~25 % of the canvas, behind everything. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(48rem 34rem at 88% -8%, color-mix(in oklch, var(--color-bloom-a) 30%, transparent), transparent 70%),
-    radial-gradient(40rem 30rem at -6% 104%, color-mix(in oklch, var(--color-bloom-b) 16%, transparent), transparent 70%);
+::selection {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
 }
 
 h1,
 h2,
 h3,
 h4 {
-  font-family: var(--font-display);
   font-style: normal;
+  font-weight: 600;
   color: var(--color-ink);
   text-wrap: balance;
   overflow-wrap: anywhere;
@@ -71,10 +69,9 @@ h4 {
   outline-offset: 3px;
 }
 
+/* Values that are names or identifiers (models, stacks): full ink. */
 .mono {
-  font-family: var(--font-code);
-  font-size: var(--text-sm);
-  letter-spacing: 0;
+  color: var(--color-ink);
 }
 
 .section {
@@ -83,19 +80,64 @@ h4 {
   padding-inline: var(--page-gutter);
 }
 
-/* ---------- Links (C3 typographic) ---------- */
+/* ---------- ASCII rules: ── Title ────────── ---------- */
+
+.head-hang h2,
+.more__title {
+  display: flex;
+  align-items: baseline;
+  gap: 1ch;
+}
+
+.head-hang h2::before,
+.more__title::before,
+.head-hang h2::after,
+.more__title::after {
+  font-weight: 400;
+  color: var(--color-rule-strong);
+  white-space: nowrap;
+}
+
+.head-hang h2::before,
+.more__title::before {
+  content: "──";
+}
+
+/* The rest of the line, clipped to whatever room is left. */
+.head-hang h2::after,
+.more__title::after {
+  content: var(--ascii-hr);
+  flex: 1;
+  min-inline-size: 2ch;
+  overflow: hidden;
+}
+
+/* ---------- Links: [ label ↗ ] ---------- */
 
 .link {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2xs);
+  gap: 1ch;
   min-block-size: 2.75rem;
   white-space: nowrap;
-  font-family: var(--font-display);
   font-weight: 500;
   color: var(--color-accent);
   text-decoration: none;
   transition: color var(--dur-micro) var(--ease-out);
+}
+
+.link::before,
+.link::after {
+  font-weight: 400;
+  color: var(--color-neutral);
+}
+
+.link::before {
+  content: "[";
+}
+
+.link::after {
+  content: "]";
 }
 
 /* Underline the words only, so the icon / arrow never gets its own stub. */
@@ -109,8 +151,8 @@ h4 {
 
 .link__icon {
   flex: none;
-  inline-size: 1.5rem;
-  block-size: 1.5rem;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
 }
 
 @media (hover: hover) {
@@ -127,184 +169,124 @@ h4 {
   transform: translateY(1px);
 }
 
-/* ---------- Nav: bottom glass bar that settles in as you scroll ----------
-   Pattern studied from kstoimenov.com's ScrollNav (rebuilt with this site's tokens, no code copied).
-   --p goes 0 → 1 over the first 12rem of scroll (desktop, motion allowed, browser supports
-   scroll-driven animation). Everywhere else --p stays 1: the settled bar. */
-
-@property --p {
-  syntax: "<number>";
-  inherits: true;
-  initial-value: 1;
-}
+/* ---------- Nav: tmux-style status line along the bottom ----------
+   Prompt (desktop) · section links · Ask me · theme switch. The current section is inverted,
+   like tmux's active window. */
 
 .nav {
   position: fixed;
   inset-inline: 0;
-  inset-block-end: max(var(--space-sm), env(safe-area-inset-bottom));
+  inset-block-end: 0;
   z-index: var(--z-nav);
-  isolation: isolate;
-  width: max-content;
-  max-width: calc(100% - 2 * var(--space-sm));
-  margin-inline: auto;
   display: flex;
-  align-items: center;
-  gap: var(--space-2xs);
-  block-size: var(--nav-height);
-  padding: var(--space-2xs);
-  transform: translateY(calc((1 - var(--p)) * 2rem));
+  justify-content: center;
+  block-size: calc(var(--nav-height) + env(safe-area-inset-bottom));
+  padding: 0 var(--space-2xs) env(safe-area-inset-bottom);
+  background: var(--color-paper-2);
+  border-block-start: var(--rule-hair) solid var(--color-rule-strong);
+  font-size: var(--text-sm);
+  color: var(--color-ink);
 }
 
-/* The glass bar itself: a layer behind the items so it can fade without fading the text.
-   Liquid glass: a thin see-through tint, saturated backdrop, and lit edges (bright top-left rim,
-   dim bottom-right return, soft inner glow) so it reads as a thick pane rather than frosted fill. */
-.nav::before {
-  --glass-hi: light-dark(oklch(100% 0 0 / 0.75), oklch(100% 0 0 / 0.24));
-  --glass-lo: light-dark(oklch(100% 0 0 / 0.22), oklch(100% 0 0 / 0.06));
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background:
-    linear-gradient(to bottom, var(--glass-lo), transparent 60%),
-    color-mix(in srgb, var(--color-paper) 80%, transparent);
-  backdrop-filter: blur(8px) saturate(180%);
-  border: var(--rule-hair) solid color-mix(in srgb, var(--color-rule) 55%, transparent);
-  border-radius: var(--radius-bar);
-  box-shadow:
-    inset 1px 1px 0 var(--glass-hi),
-    inset -1px -1px 0 var(--glass-lo),
-    inset 0 0 1rem var(--glass-lo),
-    0 0.625rem 2.125rem color-mix(in srgb, var(--color-shadow) 35%, transparent);
-  opacity: var(--p);
-  transform: scaleX(calc(0.9 + 0.1 * var(--p)));
-}
-
-/* Chromium only (flag set in layout.tsx): bend the backdrop at the bar's edges like a lens.
-   Other engines can't run SVG filters in backdrop-filter, so they keep the plain blur above. */
-:root[data-refract] .nav::before {
-  backdrop-filter: url(#nav-refract) blur(8px) saturate(180%);
-}
-
-.nav__defs {
-  position: absolute;
-  inline-size: 0;
-  block-size: 0;
+.nav__prompt {
+  display: none;
 }
 
 .nav__list {
   display: flex;
-  gap: var(--space-3xs);
   list-style: none;
 }
 
 .nav__link,
+.nav__ask,
 .nav__theme {
-  position: relative;
-  z-index: 0;
-  display: grid;
-  place-items: center;
-  block-size: calc(var(--nav-height) - 2 * var(--space-2xs));
-  border-radius: var(--radius-chip);
-  color: var(--color-ink);
-  transform: translateX(calc(var(--dx, 0rem) * (1 - var(--p))));
+  display: flex;
+  align-items: center;
+  block-size: var(--nav-height);
+  padding-inline: 0.75ch;
+  text-decoration: none;
+  text-transform: lowercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-micro) var(--ease-out),
+    color var(--dur-micro) var(--ease-out);
 }
 
-/* Chip behind the hovered / current item. Hidden until the bar has settled in. */
-.nav__link::before,
-.nav__theme::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  background: var(--color-paper-3);
-  opacity: calc(var(--chip, 0) * var(--p));
-  transition: opacity var(--dur-short) var(--ease-out);
-}
-
-@media (hover: hover) {
-  .nav__link:hover,
-  .nav__theme:hover {
-    --chip: 0.6;
-  }
+/* Inset ring: the bar is flush with the screen edge, so an outer ring would be cut off. */
+.nav :focus-visible {
+  outline-offset: -2px;
 }
 
 .nav__link[aria-current] {
-  --chip: 1;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
 }
 
-.nav__link {
-  padding-inline: var(--space-xs);
-  font-family: var(--font-display);
-  font-size: var(--text-sm);
-  text-decoration: none;
-  white-space: nowrap;
+.nav__ask {
+  font-weight: 600;
+  color: var(--color-accent);
 }
 
 .nav__theme {
-  inline-size: 2.25rem;
-  cursor: pointer;
+  color: var(--color-neutral);
+}
+
+@media (hover: hover) {
+  .nav__link:not([aria-current]):hover,
+  .nav__ask:hover,
+  .nav__theme:hover {
+    background: var(--color-paper-3);
+    color: var(--color-ink);
+  }
 }
 
 .nav__link:active,
+.nav__ask:active,
 .nav__theme:active {
   translate: 0 1px;
 }
 
-/* Moon shows in light mode (click → dark), sun in dark mode. Crossfade on switch. */
-.nav__icon {
-  grid-area: 1 / 1;
-  inline-size: 1.25rem;
-  block-size: 1.25rem;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.75;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: opacity var(--dur-short) var(--ease-out);
+/* Shows the mode a click switches to. */
+.nav__mode--light,
+:root[data-theme="dark"] .nav__mode--dark {
+  display: none;
 }
 
-.nav__icon--sun,
-:root[data-theme="dark"] .nav__icon--moon {
-  opacity: 0;
+:root[data-theme="dark"] .nav__mode--light {
+  display: inline;
 }
 
-:root[data-theme="dark"] .nav__icon--sun {
-  opacity: 1;
+@media (min-width: 24rem) {
+  .nav__link,
+  .nav__ask,
+  .nav__theme {
+    padding-inline: 1ch;
+  }
 }
 
+/* Desktop: prompt on the left, lined up with the page content; Ask me and theme pushed right. */
 @media (min-width: 40rem) {
   .nav {
-    inset-block-end: max(var(--space-xl), env(safe-area-inset-bottom));
-    gap: var(--space-xs);
-    padding-inline: var(--space-xs);
+    justify-content: flex-start;
+    gap: 1ch;
+    padding-inline: max(var(--page-gutter), calc((100% - var(--page-max)) / 2 + var(--page-gutter)));
   }
 
-  .nav__link {
-    padding-inline: var(--space-sm);
-    font-size: var(--text-base);
-    font-weight: 300;
+  .nav__prompt {
+    display: flex;
+    align-items: center;
+    margin-inline-end: 1ch;
+    color: var(--color-neutral);
+    white-space: nowrap;
   }
-}
 
-@supports (animation-timeline: scroll()) {
-  /* min-height: on short screens (landscape phones) the hero outgrows the viewport, so the bar-less nav would sit on its text. */
-  @media (min-width: 40rem) and (min-height: 40rem) and (prefers-reduced-motion: no-preference) {
-    .nav {
-      animation: nav-settle linear both;
-      animation-timeline: scroll(root);
-      animation-range: 0 12rem;
-    }
+  .nav__prompt span {
+    color: var(--color-accent);
   }
-}
 
-@keyframes nav-settle {
-  from {
-    --p: 0;
-  }
-  to {
-    --p: 1;
+  .nav__ask {
+    margin-inline-start: auto;
   }
 }
 
@@ -320,8 +302,6 @@ h4 {
   padding-block: var(--space-2xl) var(--space-3xl);
 }
 
-/* Desktop: the hero fills the screen so the unsettled nav (no bar yet) floats over the hero's
-   empty bottom padding, never over the next section's text. */
 @media (min-width: 40rem) {
   .hero {
     min-block-size: 100svh;
@@ -335,9 +315,7 @@ h4 {
 }
 
 .hero__name {
-  font-family: var(--font-code);
   font-size: var(--text-display);
-  font-weight: 600;
   line-height: 1;
   letter-spacing: -0.04em;
 }
@@ -354,7 +332,6 @@ h4 {
 }
 
 .hero__zh {
-  font-family: var(--font-display);
   font-size: var(--text-xl);
   font-weight: 500;
   line-height: 1;
@@ -363,7 +340,6 @@ h4 {
 
 .term,
 .term__line {
-  font-family: var(--font-code);
   font-size: var(--text-sm);
   line-height: 1.7;
   color: var(--color-ink);
@@ -415,15 +391,8 @@ h4 {
   }
 }
 
-/* ---------- Work ---------- */
+/* ---------- Section heads ---------- */
 
-.work {
-  display: grid;
-  gap: var(--space-2xl);
-  padding-block: 0 var(--space-3xl);
-}
-
-/* S2 hanging head */
 .head-hang {
   display: grid;
   gap: var(--space-xs);
@@ -431,34 +400,73 @@ h4 {
 
 .head-hang h2 {
   font-size: var(--text-xl);
-  font-weight: 600;
-  line-height: 1.05;
-  letter-spacing: -0.03em;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+/* Section blurb as a shell comment. */
+.head-hang p::before {
+  content: "# ";
+  color: var(--color-neutral);
+}
+
+/* ---------- key: value facts (YAML, like profile.yml in the hero) ---------- */
+
+.facts dt,
+.card__facts dt,
+.dated__facts dt {
+  font-size: var(--text-sm);
+  color: var(--color-neutral);
+  text-transform: lowercase;
+}
+
+.facts dt::after,
+.card__facts dt::after,
+.dated__facts dt::after {
+  content: ":";
+}
+
+/* ---------- Work ---------- */
+
+.work {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2xl);
+  padding-block: 0 var(--space-3xl);
+}
+
+/* TUI panels: a square box with its tag set into the top border. */
+.research,
+.card {
+  position: relative;
+  border: var(--rule-hair) solid var(--color-rule-strong);
 }
 
 .tag {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  justify-self: start;
-  padding: var(--space-3xs) var(--space-sm);
-  border: var(--rule-hair) solid var(--color-rule);
-  border-radius: var(--radius-pill);
-  font-family: var(--font-display);
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: calc(var(--space-sm) - 1ch);
+  translate: 0 -50%;
+  max-inline-size: calc(100% - 2 * var(--space-sm));
+  padding-inline: 1ch;
+  background: var(--color-paper);
   font-size: var(--text-sm);
+  line-height: 1.6;
   color: var(--color-neutral);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tag--research {
-  border-color: var(--color-accent);
   color: var(--color-accent);
 }
 
-/* Research write-up: open layout, no card. */
+/* Research write-up. */
 .research {
   display: grid;
   gap: var(--space-xl);
+  padding: var(--space-xl) var(--space-sm) var(--space-lg);
 }
 
 .research__text {
@@ -469,14 +477,13 @@ h4 {
 
 .research h3 {
   font-size: var(--text-xl);
-  font-weight: 600;
-  line-height: 1.08;
-  letter-spacing: -0.03em;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
 
 .research__lead {
   font-size: var(--text-md);
-  line-height: 1.45;
+  line-height: 1.5;
   color: var(--color-ink);
 }
 
@@ -487,30 +494,33 @@ h4 {
 
 .facts dt {
   margin-block-end: var(--space-2xs);
-  font-family: var(--font-display);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  color: var(--color-neutral);
 }
 
-.facts dd.mono {
-  color: var(--color-ink);
+@media (min-width: 40rem) {
+  .research {
+    padding: var(--space-2xl) var(--space-xl) var(--space-xl);
+  }
+
+  .tag {
+    inset-inline-start: calc(var(--space-xl) - 1ch);
+    max-inline-size: calc(100% - 2 * var(--space-xl));
+  }
 }
 
 @media (min-width: 60rem) {
   .facts {
-    grid-template-columns: minmax(0, 0.7fr) minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--space-xl);
   }
 }
 
-/* Figure: the Focus alert gate. Vertical tree on phones, left-to-right flow from 48rem. */
+/* Figure: the Focus alert gate. Vertical tree on phones and tablets, left-to-right flow from 64rem
+   (mono labels are wide, so the flow needs the room). */
 .gate {
   display: grid;
   gap: var(--space-lg);
-  padding: var(--space-lg);
+  padding: var(--space-lg) var(--space-sm);
   background: var(--color-paper-2);
-  border-radius: var(--radius-card);
 }
 
 .gate__flow {
@@ -540,13 +550,11 @@ h4 {
   position: relative;
   display: flex;
   align-items: center;
-  gap: var(--space-xs);
+  gap: 1ch;
   block-size: var(--node-height);
-  padding-inline: var(--space-sm);
-  background: var(--color-paper-3);
-  border: var(--rule-hair) solid var(--color-paper-3);
-  border-radius: var(--radius-node);
-  font-family: var(--font-display);
+  padding-inline: 1ch;
+  background: var(--color-paper);
+  border: var(--rule-hair) solid var(--color-rule-strong);
   font-size: var(--text-sm);
   color: var(--color-ink);
   white-space: nowrap;
@@ -562,9 +570,15 @@ h4 {
   border-block-start: var(--rule-hair) solid var(--color-rule-strong);
 }
 
+/* The one long label may wrap its note under it on the narrowest phones. */
 .gate__inputs li.is-open {
+  flex-wrap: wrap;
+  block-size: auto;
+  min-block-size: var(--node-height);
+  padding-block: var(--space-2xs);
+  gap: 0 1ch;
   background: transparent;
-  border: var(--rule-hair) dashed var(--color-rule-strong);
+  border-style: dashed;
   color: var(--color-muted);
 }
 
@@ -573,8 +587,11 @@ h4 {
 }
 
 .gate__note {
-  font-family: var(--font-display);
   color: var(--color-neutral);
+}
+
+.gate__note::before {
+  content: "# ";
 }
 
 .gate__wire {
@@ -585,7 +602,7 @@ h4 {
   border-inline-start: var(--rule-hair) solid var(--color-rule-strong);
 }
 
-/* Arrowhead pointing down (phone) / right (from 48rem). */
+/* Arrowhead pointing down (phone) / right (from 64rem). */
 .gate__wire::after {
   content: "";
   position: absolute;
@@ -597,10 +614,9 @@ h4 {
 }
 
 .gate__node--out {
-  background: transparent;
   border-color: var(--color-accent);
   color: var(--color-accent);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .gate figcaption {
@@ -610,9 +626,9 @@ h4 {
   color: var(--color-neutral);
 }
 
-@media (min-width: 48rem) {
+@media (min-width: 64rem) {
   .gate {
-    padding: var(--space-xl);
+    padding: var(--space-xl) var(--space-lg);
   }
 
   .gate__flow {
@@ -653,26 +669,24 @@ h4 {
   }
 }
 
-/* Projects: elevated cards, deliberately unequal widths. */
+/* Projects: TUI panels, deliberately unequal widths. */
 .projects {
   display: grid;
-  gap: var(--space-lg);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-xl);
 }
 
 .card {
   display: grid;
   align-content: start;
   gap: var(--space-md);
-  padding: var(--space-xl) var(--space-lg);
-  background: var(--color-paper-2);
-  border-radius: var(--radius-card);
+  padding: var(--space-xl) var(--space-sm) var(--space-md);
 }
 
 .card h3 {
   font-size: var(--text-md);
-  font-weight: 600;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 
 .card__task {
@@ -681,18 +695,15 @@ h4 {
 
 .card__facts {
   display: grid;
-  gap: var(--space-sm);
+  gap: var(--space-2xs) 2ch;
 }
 
-.card__facts dt {
-  font-family: var(--font-display);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  color: var(--color-neutral);
+.card__facts div {
+  display: contents;
 }
 
-.card__facts dd.mono {
-  color: var(--color-ink);
+.card__facts div + div > dt {
+  margin-block-start: var(--space-xs);
 }
 
 .card__links {
@@ -700,26 +711,40 @@ h4 {
   flex-wrap: wrap;
   align-items: center;
   gap: 0 var(--space-lg);
-  margin-block-start: var(--space-xs);
   list-style: none;
 }
 
+/* The note drops under its link when the row runs out of room. */
 .card__links li {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-xs);
+  column-gap: 1ch;
 }
 
 .card__links .note {
-  font-family: var(--font-display);
   font-size: var(--text-sm);
   color: var(--color-neutral);
   white-space: nowrap;
 }
 
+.card__links .note::before {
+  content: "# ";
+}
+
 @media (min-width: 40rem) {
   .card {
-    padding: var(--space-xl);
+    padding: var(--space-2xl) var(--space-xl) var(--space-lg);
+  }
+
+  /* key: value on one line, keys in one column. */
+  .card__facts {
+    grid-template-columns: max-content minmax(0, 1fr);
+    align-items: baseline;
+  }
+
+  .card__facts div + div > dt {
+    margin-block-start: 0;
   }
 }
 
@@ -729,7 +754,7 @@ h4 {
   }
 }
 
-/* ---------- Education + Experience (one timeline grammar, date column from 60rem) ---------- */
+/* ---------- Education + Experience (one timeline grammar, date column from 48rem) ---------- */
 
 .timeline {
   display: grid;
@@ -750,7 +775,6 @@ h4 {
 
 .dated__when,
 .more__year {
-  font-family: var(--font-display);
   font-size: var(--text-sm);
   color: var(--color-neutral);
   font-variant-numeric: tabular-nums;
@@ -765,13 +789,11 @@ h4 {
 
 .dated h3 {
   font-size: var(--text-md);
-  font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
 }
 
 .dated__title {
-  font-family: var(--font-display);
   color: var(--color-accent);
   text-wrap: balance;
 }
@@ -780,7 +802,7 @@ h4 {
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);
   align-items: baseline;
-  gap: var(--space-2xs) var(--space-md);
+  gap: var(--space-2xs) 2ch;
   margin-block-start: var(--space-2xs);
 }
 
@@ -788,37 +810,69 @@ h4 {
   display: contents;
 }
 
-.dated__facts dt {
-  font-family: var(--font-display);
-  font-size: var(--text-sm);
-  color: var(--color-neutral);
-}
-
 .dated__facts dd {
   color: var(--color-ink);
   text-wrap: balance;
 }
 
+/* Points as a tree:  ├─ first  └─ last. Lines drawn in CSS so wrapped text keeps the trunk unbroken. */
 .dated ul {
-  display: grid;
-  gap: var(--space-xs);
-  padding-inline-start: var(--space-md);
-  list-style: disc;
+  margin-block-start: var(--space-2xs);
+  list-style: none;
 }
 
-.dated li::marker {
-  color: var(--color-rule-strong);
+.dated li {
+  position: relative;
+  padding-inline-start: 3ch;
+  padding-block-end: var(--space-xs);
+}
+
+.dated li:last-child {
+  padding-block-end: 0;
+}
+
+/* Trunk: full height, or down to the first line's middle on the last item (└). */
+.dated li::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0.5ch;
+  border-inline-start: var(--rule-hair) solid var(--color-rule-strong);
+}
+
+.dated li:last-child::before {
+  inset-block-end: auto;
+  block-size: 0.5lh;
+}
+
+/* Branch into the item. */
+.dated li::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 0.5lh;
+  inset-inline-start: 0.5ch;
+  inline-size: 1.75ch;
+  border-block-start: var(--rule-hair) solid var(--color-rule-strong);
 }
 
 .dated strong {
-  font-weight: 500;
+  font-weight: 600;
   color: var(--color-ink);
+}
+
+@media (min-width: 48rem) {
+  .dated {
+    grid-template-columns: 16ch minmax(0, 1fr);
+    align-items: baseline;
+    column-gap: 2ch;
+  }
 }
 
 /* Skills: an endless logo strip on the page background. Hover or focus pauses it. */
 .marquee {
   overflow: hidden;
   padding-block: var(--space-md);
+  border-block: var(--rule-hair) solid var(--color-rule);
   /* Fade the strip out at both edges. */
   mask-image: linear-gradient(
     90deg,
@@ -862,21 +916,19 @@ h4 {
 .skill {
   display: flex;
   align-items: center;
-  gap: var(--space-xs);
-  font-family: var(--font-display);
-  font-size: var(--text-base);
+  gap: 1ch;
   color: var(--color-ink);
   white-space: nowrap;
 }
 
 .skill__icon {
   flex: none;
-  inline-size: 1.5rem;
-  block-size: 1.5rem;
-  color: var(--color-muted);
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  color: var(--brand, var(--color-ink));
 }
 
-/* ---------- More projects (compact rows, no cards) ---------- */
+/* ---------- More projects (ls-style rows) ---------- */
 
 .more {
   display: grid;
@@ -885,8 +937,7 @@ h4 {
 
 .more__title {
   font-size: var(--text-md);
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
 .more__list {
@@ -906,20 +957,16 @@ h4 {
   max-width: var(--measure);
 }
 
-.more__body h4 {
-  font-weight: 500;
-}
-
 .more__stack {
-  color: var(--color-neutral);
+  font-size: var(--text-sm);
   text-wrap: balance;
 }
 
 @media (min-width: 60rem) {
   .more__row {
-    grid-template-columns: 10rem minmax(0, 1fr) minmax(0, 16rem);
+    grid-template-columns: 8ch minmax(0, 1fr) minmax(0, 18rem);
     align-items: baseline;
-    column-gap: var(--space-xl);
+    column-gap: 2ch;
   }
 }
 
@@ -928,20 +975,19 @@ h4 {
 .foot {
   display: grid;
   gap: var(--space-xl);
-  /* Bottom room so the fixed nav bar never covers the last line. */
+  /* Bottom room so the fixed status line never covers the last line. */
   padding-block: var(--space-3xl) calc(var(--nav-height) + var(--space-3xl));
 }
 
 .foot__line {
-  max-width: 22ch;
+  max-width: 24ch;
   font-size: var(--text-xl);
-  font-weight: 600;
-  line-height: 1.05;
-  letter-spacing: -0.03em;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
 
-/* Contact index: one hairline row per link. Mobile stacks label over handle; from 40rem the
-   handles line up in one column, like the key: value block in the hero. */
+/* Contact index: one hairline row per link. Mobile stacks label over handle; from 40rem a row reads
+   GitHub ........ Natthakrittxx  ↗ */
 .foot__links {
   list-style: none;
   border-block-start: var(--rule-hair) solid var(--color-rule);
@@ -953,10 +999,10 @@ h4 {
 
 .foot__row {
   display: grid;
-  grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+  grid-template-columns: 1.25rem minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--space-3xs) var(--space-sm);
-  min-block-size: 4rem;
+  min-block-size: 3.5rem;
   padding-block: var(--space-sm);
   color: var(--color-ink);
   text-decoration: none;
@@ -964,24 +1010,20 @@ h4 {
 
 .foot__icon {
   grid-area: 1 / 1 / 3 / 2;
-  inline-size: 1.5rem;
-  block-size: 1.5rem;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
   color: var(--color-accent);
 }
 
 .foot__label {
   grid-area: 1 / 2;
-  font-family: var(--font-display);
-  font-size: var(--text-md);
-  font-weight: 500;
-  line-height: 1.2;
+  font-weight: 600;
   white-space: nowrap;
 }
 
 /* Spans under the arrow too, so the longest handle fits one line at 320px. */
 .foot__handle {
   grid-area: 2 / 2 / 3 / 4;
-  font-family: var(--font-code);
   font-size: var(--text-sm);
   color: var(--color-neutral);
   overflow-wrap: anywhere;
@@ -990,7 +1032,6 @@ h4 {
 
 .foot__arrow {
   grid-area: 1 / 3;
-  font-size: var(--text-md);
   line-height: 1;
   color: var(--color-neutral);
   transition:
@@ -1019,20 +1060,32 @@ h4 {
 
 @media (min-width: 40rem) {
   .foot__row {
-    grid-template-columns: 1.5rem 7.5rem minmax(0, 1fr) auto;
-    column-gap: var(--space-md);
+    grid-template-columns: 1.25rem 16ch minmax(0, 1fr) auto;
+    column-gap: 1ch;
   }
 
   .foot__icon {
     grid-area: 1 / 1;
   }
 
+  /* Dot leaders from the label to the handle. */
   .foot__label {
     grid-area: 1 / 2;
+    display: flex;
+    gap: 1ch;
+  }
+
+  .foot__label::after {
+    content: var(--ascii-dots);
+    flex: 1;
+    overflow: hidden;
+    font-weight: 400;
+    color: var(--color-rule-strong);
   }
 
   .foot__handle {
     grid-area: 1 / 3;
+    font-size: var(--text-base);
   }
 
   .foot__arrow {
@@ -1043,7 +1096,7 @@ h4 {
 /* Desktop: the statement holds the left, the index fills the right; meta runs full width below. */
 @media (min-width: 60rem) {
   .foot {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
     column-gap: var(--space-2xl);
     align-items: start;
   }
@@ -1056,7 +1109,7 @@ h4 {
 .foot__meta {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2xs) var(--space-md);
+  gap: var(--space-2xs) 2ch;
   padding-block-start: var(--space-lg);
   font-size: var(--text-sm);
   color: var(--color-neutral);
@@ -1082,9 +1135,307 @@ h4 {
 }
 
 .foot__meta .wordmark {
-  font-family: var(--font-body);
-  font-weight: 500;
+  font-weight: 600;
   color: var(--color-ink);
+}
+
+/* ---------- Ask me (modal dialog, a terminal pane) ----------
+   Slides up from the bottom edge and sits just above the status line. Questions are > prompt lines,
+   answers plain output. Only the conversation scrolls. */
+
+.ask {
+  --nav-clear: calc(var(--nav-height) + env(safe-area-inset-bottom));
+  /* Set here, not left to the browser's dialog:modal style: Safari and Firefox take the panel out of
+     the top layer the moment it closes, and without these it would jump and slide down behind the nav. */
+  position: fixed;
+  z-index: var(--z-modal);
+  inset: auto 0 calc(var(--nav-clear) + var(--space-sm));
+  inline-size: min(40rem, 100% - 2 * var(--space-sm));
+  max-inline-size: none;
+  max-block-size: calc(100dvh - var(--nav-clear) - 2 * var(--space-sm) - var(--space-lg));
+  margin: 0 auto;
+  padding: 0;
+  overflow: hidden;
+  color: var(--color-muted);
+  background: var(--color-paper);
+  border: var(--rule-hair) solid var(--color-rule-strong);
+  box-shadow: 0 1.5rem 4rem color-mix(in srgb, var(--color-shadow) 25%, transparent);
+  /* Slide-up: starts just below the bottom edge of the screen and rises into place. Closing slides
+     back down, a little quicker. display + overlay transition discretely so the panel stays in
+     the top layer until it is off screen. */
+  --ask-off: translateY(calc(100% + var(--nav-clear) + var(--space-sm)));
+  transform: var(--ask-off);
+  transition:
+    transform var(--dur-sheet-close) var(--ease-in-out),
+    overlay var(--dur-sheet-close) allow-discrete,
+    display var(--dur-sheet-close) allow-discrete;
+}
+
+.ask[open] {
+  display: flex;
+  transform: none;
+  transition-duration: var(--dur-sheet);
+  transition-timing-function: var(--ease-sheet);
+}
+
+@starting-style {
+  .ask[open] {
+    transform: var(--ask-off);
+  }
+}
+
+.ask::backdrop {
+  background: transparent;
+  transition:
+    background-color var(--dur-sheet-close) var(--ease-in-out),
+    overlay var(--dur-sheet-close) allow-discrete,
+    display var(--dur-sheet-close) allow-discrete;
+}
+
+.ask[open]::backdrop {
+  background: color-mix(in srgb, var(--color-shadow) 16%, transparent);
+  transition-duration: var(--dur-sheet);
+  transition-timing-function: var(--ease-sheet);
+}
+
+@starting-style {
+  .ask[open]::backdrop {
+    background: transparent;
+  }
+}
+
+/* The page behind stays put while the panel is open. */
+html:has(.ask[open]) {
+  overflow: hidden;
+}
+
+.ask__panel {
+  flex: 1;
+  min-block-size: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-sm) var(--space-sm);
+}
+
+.ask__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-xs) var(--space-sm);
+  /* Rule under the fixed head, so the conversation scrolls out under a line, not into the disclaimer. */
+  padding-block-end: var(--space-md);
+  border-block-end: var(--rule-hair) solid var(--color-rule);
+}
+
+.ask__head h2 {
+  font-size: var(--text-md);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.ask__head p {
+  grid-column: 1 / -1;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.ask__head a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-decoration-thickness: var(--rule-hair);
+  text-underline-offset: 0.3em;
+  transition: color var(--dur-micro) var(--ease-out);
+}
+
+.ask__close {
+  display: grid;
+  place-items: center;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  margin-block: calc(-1 * var(--space-xs));
+  color: var(--color-neutral);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-micro) var(--ease-out),
+    color var(--dur-micro) var(--ease-out);
+}
+
+/* The only part that scrolls. */
+.ask__body {
+  flex: 1;
+  min-block-size: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* Room for focus rings, pulled back out so the text lines up with the head and composer. */
+  margin-inline: calc(-1 * var(--space-xs));
+  padding-inline: var(--space-xs);
+}
+
+/* Starter questions, shown until the first one is asked: a menu of > lines. */
+.ask__try {
+  display: grid;
+  list-style: none;
+}
+
+.ask__try button {
+  inline-size: 100%;
+  min-block-size: 2.75rem;
+  padding-inline: 0.5ch;
+  font-size: var(--text-sm);
+  text-align: start;
+  color: var(--color-ink);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-micro) var(--ease-out),
+    color var(--dur-micro) var(--ease-out);
+}
+
+.ask__try button::before,
+.turn__q::before {
+  content: "> ";
+  color: var(--color-accent);
+}
+
+.turn {
+  display: grid;
+  gap: var(--space-xs);
+  padding-block: var(--space-md);
+}
+
+/* The head's rule already sits above the first turn. */
+.turn:first-child {
+  padding-block-start: 0;
+}
+
+.turn + .turn {
+  border-block-start: var(--rule-hair) dashed var(--color-rule);
+}
+
+.turn__q {
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
+}
+
+.turn__a {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Same dashed rule as the "under test" input in Fig. 1: this part isn't working yet. */
+.turn__error {
+  display: grid;
+  justify-items: start;
+  padding-inline-start: 2ch;
+  border-inline-start: var(--rule-hair) dashed var(--color-rule-strong);
+  font-size: var(--text-sm);
+  color: var(--color-ink);
+}
+
+.turn__error .link {
+  cursor: pointer;
+}
+
+.turn__error .link:disabled {
+  color: var(--color-neutral);
+  cursor: not-allowed;
+}
+
+/* Composer: a > prompt, the question box, and the send key. */
+.ask__form {
+  display: flex;
+  align-items: end;
+  gap: var(--space-xs);
+  padding: var(--space-2xs) var(--space-2xs) var(--space-2xs) 1ch;
+  background: var(--color-paper-2);
+  border: var(--rule-hair) solid var(--color-rule-strong);
+}
+
+.ask__form::before {
+  content: ">";
+  align-self: center;
+  color: var(--color-accent);
+}
+
+/* The focus ring goes round the whole composer, not the bare textarea. */
+.ask__form:has(.ask__input:focus-visible) {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Grows with its text (field-sizing) up to six lines, then scrolls. */
+.ask__input {
+  flex: 1;
+  min-inline-size: 0;
+  field-sizing: content;
+  min-block-size: 2.75rem;
+  max-block-size: 6lh;
+  padding: var(--space-xs) 0;
+  resize: none;
+  color: var(--color-ink);
+  outline: none;
+}
+
+.ask__input::placeholder {
+  color: var(--color-neutral);
+}
+
+.ask__send {
+  flex: none;
+  block-size: 2.75rem;
+  padding-inline: 2ch;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  font-weight: 600;
+  text-transform: lowercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--dur-micro) var(--ease-out);
+}
+
+.ask__send:disabled {
+  background: var(--color-paper-3);
+  color: var(--color-neutral);
+  cursor: not-allowed;
+}
+
+.ask__try button:active,
+.ask__close:active,
+.ask__send:enabled:active {
+  translate: 0 1px;
+}
+
+@media (hover: hover) {
+  .ask__head a:hover {
+    color: var(--color-ink);
+  }
+
+  .ask__close:hover {
+    background: var(--color-paper-3);
+    color: var(--color-ink);
+  }
+
+  .ask__try button:hover {
+    background: var(--color-paper-2);
+    color: var(--color-accent);
+  }
+
+  .ask__send:enabled:hover {
+    background: color-mix(in oklch, var(--color-accent) 75%, var(--color-ink));
+  }
+}
+
+@media (min-width: 40rem) {
+  .ask__panel {
+    padding: var(--space-lg);
+  }
+
+  .ask__head p {
+    font-size: var(--text-base);
+  }
 }
 
 /* ---------- Motion: bubble cursor trail (bubble-trail.tsx) ---------- */
@@ -1137,7 +1488,6 @@ h4 {
   position: absolute;
   inset: calc(-1 * var(--rule-hair));
   border: var(--rule-hair) solid var(--color-accent);
-  border-radius: inherit;
   opacity: 0;
   pointer-events: none;
 }
@@ -1147,7 +1497,7 @@ h4 {
   border-style: dashed;
 }
 
-/* Accent line drawn over each wire (down on phones, across from 48rem). */
+/* Accent line drawn over each wire (down on phones, across from 64rem). */
 .gate__wire::before {
   content: "";
   position: absolute;
@@ -1158,7 +1508,7 @@ h4 {
   transform-origin: top;
 }
 
-@media (min-width: 48rem) {
+@media (min-width: 64rem) {
   .gate__wire::before {
     inset-block: calc(-1 * var(--rule-hair)) auto;
     inset-inline: 0;
@@ -1233,6 +1583,25 @@ h4 {
   *::after {
     animation-duration: 150ms !important;
     transition-duration: 150ms !important;
+  }
+
+  /* No slide: the Ask panel fades instead. */
+  .ask {
+    opacity: 0;
+    transform: none;
+    transition-property: opacity, overlay, display;
+  }
+
+  .ask[open] {
+    opacity: 1;
+    transform: none;
+  }
+
+  @starting-style {
+    .ask[open] {
+      opacity: 0;
+      transform: none;
+    }
   }
 
   .marquee__track,

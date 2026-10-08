@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useState } from "react";
+import { openAsk } from "./ask";
 
 type NavLink = { href: string; label: string };
 
@@ -25,23 +26,7 @@ function toggleTheme() {
   }
 }
 
-// Displacement map for the nav's edge refraction (#nav-refract). R moves sampling sideways, G up and
-// down, 50% grey = none. Each edge band pulls the backdrop inward like the rim of a lens. Bands are
-// fixed 16px, not stretched, so the rim stays the same thickness at any bar width.
-const refractMap =
-  "data:image/svg+xml," +
-  encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg">
-<linearGradient id="l"><stop stop-color="#f00"/><stop offset="1" stop-color="#800000"/></linearGradient>
-<linearGradient id="r"><stop stop-color="#80ffff"/><stop offset="1" stop-color="#0ff"/></linearGradient>
-<linearGradient id="t" x2="0" y2="1"><stop stop-color="#0f0"/><stop offset="1" stop-color="#008000"/></linearGradient>
-<linearGradient id="b" x2="0" y2="1"><stop stop-color="#ff80ff"/><stop offset="1" stop-color="#f0f"/></linearGradient>
-<rect width="100%" height="100%" fill="#808000"/>
-<rect width="16" height="100%" fill="url(#l)" style="mix-blend-mode:lighten"/>
-<rect x="100%" width="16" height="100%" transform="translate(-16)" fill="url(#r)" style="mix-blend-mode:darken"/>
-<rect width="100%" height="16" fill="url(#t)" style="mix-blend-mode:lighten"/>
-<rect y="100%" width="100%" height="16" transform="translate(0 -16)" fill="url(#b)" style="mix-blend-mode:darken"/>
-</svg>`);
-
+// tmux-style status line along the bottom edge. The prompt shows the current section as a directory.
 export function Nav({ links }: { links: NavLink[] }) {
   const [active, setActive] = useState<string | null>(null);
 
@@ -60,50 +45,30 @@ export function Nav({ links }: { links: NavLink[] }) {
     return () => io.disconnect();
   }, []);
 
-  // At the top of the page the items sit spread out; scrolling gathers them (see .nav in globals.css).
-  // --dx is each item's spread offset, measured from the middle item.
-  const mid = links.length / 2;
-  const spread = (i: number) => ({ "--dx": `${(i - mid) * 0.75}rem` }) as CSSProperties;
+  const dir = links.find((l) => l.href === active)?.label.toLowerCase();
 
   return (
     <nav className="nav" aria-label="Sections">
-      <button
-        type="button"
-        className="nav__theme"
-        onClick={toggleTheme}
-        aria-label="Switch light or dark theme"
-        style={spread(0)}
-      >
-        {/* Lucide "sun" + "moon" (ISC); CSS shows the one for the other mode. */}
-        <svg className="nav__icon nav__icon--sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2M12 20v2m-7.07-17.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-        </svg>
-        <svg className="nav__icon nav__icon--moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" />
-        </svg>
-      </button>
+      <p className="nav__prompt" aria-hidden="true">
+        nb@portfolio:<span>~{dir && `/${dir}`}</span>$
+      </p>
       <ul className="nav__list">
-        {links.map((s, i) => (
+        {links.map((s) => (
           <li key={s.href}>
-            <a
-              className="nav__link"
-              href={s.href}
-              aria-current={active === s.href ? "true" : undefined}
-              style={spread(i + 1)}
-            >
+            <a className="nav__link" href={s.href} aria-current={active === s.href ? "true" : undefined}>
               {s.label}
             </a>
           </li>
         ))}
       </ul>
-      {/* Used by .nav::before's backdrop-filter in Chromium (see [data-refract] in globals.css). */}
-      <svg className="nav__defs" aria-hidden="true" focusable="false">
-        <filter id="nav-refract" x="0" y="0" width="1" height="1" colorInterpolationFilters="sRGB">
-          <feImage href={refractMap} preserveAspectRatio="none" result="map" />
-          <feDisplacementMap in="SourceGraphic" in2="map" scale="16" xChannelSelector="R" yChannelSelector="G" />
-        </filter>
-      </svg>
+      <button type="button" className="nav__ask" onClick={openAsk} aria-haspopup="dialog" aria-controls="ask">
+        Ask me
+      </button>
+      {/* Names the mode it switches to; CSS shows the one for the other mode. */}
+      <button type="button" className="nav__theme" onClick={toggleTheme} aria-label="Switch light or dark theme">
+        <span className="nav__mode nav__mode--dark">dark</span>
+        <span className="nav__mode nav__mode--light">light</span>
+      </button>
     </nav>
   );
 }

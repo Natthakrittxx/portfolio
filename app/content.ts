@@ -99,28 +99,24 @@ export const skills = [
 
 export const research = {
   title: "Focus: telling phone use from a phone on the desk",
-  status: "In development · private repository",
+  status: "In development",
   question:
     "Can a webcam tell a phone you are using apart from a phone that is just lying on your desk?",
-  method:
-    "An alert fires only when five conditions hold for a set dwell time: session active, face present, phone detected, keyboard and mouse idle, and the phone moving.",
   conditions: ["Session active", "Face present", "Phone detected", "Keyboard and mouse idle"],
   openCondition: "Phone moving",
   facts: [
     {
       key: "Models",
-      value: "MediaPipe EfficientDet-Lite0 (float32) · BlazeFace short-range · runs fully offline",
+      value: "EfficientDet-Lite0 (float32) · BlazeFace · fully offline",
       mono: true,
     },
     {
       key: "Finding",
-      value:
-        "The int8 build of EfficientDet-Lite0 returned near-noise on webcam frames: no person detected even with a person filling the frame. The float32 build of the same model detects both the person and the phone, so only float32 is used.",
+      value: "The int8 model saw only noise on webcam frames. Float32 works, so Focus uses float32 only.",
     },
     {
       key: "Open question",
-      value:
-        "Is in-hand micro-motion separable from the detector’s frame-to-frame box jitter? A labelling prototype records box movement for phone-on-desk and phone-in-hand samples to compare the two. If they overlap, the motion condition is dropped.",
+      value: "Is a phone moving in hand separable from the detector’s box jitter? If not, that check is dropped.",
     },
   ] as Fact[],
 };
@@ -200,4 +196,18 @@ export const contact: Link[] = [
     handle: "Natthakrit Benjapatanamongkol",
   },
   { label: "Instagram", href: "https://www.instagram.com/natthakrittx", handle: "@natthakrittx" },
+];
+
+// Bottom nav links. Nav adds "Ask me" (the /ask page) itself.
+export const sections = [
+  { href: "#education", label: "Background" },
+  { href: "#work", label: "Work" },
+  { href: "#contact", label: "Contact" },
+];
+
+// Starter questions on /ask. Each one is answerable from the facts above.
+export const askSuggestions = [
+  "What did you build at G-able?",
+  "How does Focus spot phone use?",
+  "What RAG systems have you built?",
 ];

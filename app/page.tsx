@@ -8,19 +8,15 @@ import {
   person,
   projects,
   research,
+  sections,
   skills,
   type Entry,
   type Link,
 } from "./content";
 import { InViewFlag, Nav } from "./client";
+import { AskDialog } from "./ask";
 import { BubbleTrail } from "./bubble-trail";
-import { brandIcons } from "./icons";
-
-const sections = [
-  { href: "#education", label: "Background" },
-  { href: "#work", label: "Work" },
-  { href: "#contact", label: "Contact" },
-];
+import { brandColors, brandIcons } from "./icons";
 
 function BrandIcon({ name, className }: { name: string; className: string }) {
   return (
@@ -112,6 +108,7 @@ export default function Home() {
   return (
     <>
       <Nav links={sections} />
+      <AskDialog />
 
       <main>
         <section id="about" className="section hero" aria-label="About">
@@ -172,7 +169,7 @@ export default function Home() {
               {[0, 1].map((copy) => (
                 <ul key={copy} className="marquee__group" aria-hidden={copy === 1 ? true : undefined}>
                   {skills.map((name) => (
-                    <li key={name} className="skill">
+                    <li key={name} className="skill" style={{ "--brand": brandColors[name] } as CSSProperties}>
                       <BrandIcon name={name} className="skill__icon" />
                       {name}
                     </li>
@@ -194,7 +191,6 @@ export default function Home() {
               <p className="tag tag--research">Research · {research.status}</p>
               <h3 id="research-title">{research.title}</h3>
               <p className="research__lead">{research.question}</p>
-              <p>{research.method}</p>
             </div>
 
             <figure id="gate" className="gate" aria-labelledby="gate-caption">
@@ -224,8 +220,7 @@ export default function Home() {
                 </p>
               </div>
               <figcaption id="gate-caption">
-                Fig. 1 — The alert gate. Every input must hold at the same time, for the whole dwell time. The dashed
-                input is still under test and may be dropped.
+                Fig. 1 — All five must hold for the dwell time. The dashed one may be dropped.
               </figcaption>
             </figure>
             <InViewFlag id="gate" />

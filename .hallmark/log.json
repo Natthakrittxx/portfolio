@@ -1,5 +1,37 @@
 [
   {
+    "date": "2026-10-08",
+    "scope": "redesign --mood terminal (whole page + Ask dialog)",
+    "macrostructure": "Marquee Hero (kept)",
+    "theme": "custom",
+    "theme_axes": "light (dark via toggle) / mono / cool cyan",
+    "vibe": "terminal session, ASCII rules and trees",
+    "genre": "atmospheric",
+    "nav": "N8 Terminal command as a tmux-style status line (replaced the N5 glass bar)",
+    "footer": "Ft5 Statement kept, index rows with dot leaders",
+    "enrichment": "E5 hand-built diagram kept (square nodes); liquid-glass bubble trail kept",
+    "brief": "Apply terminal + ASCII style to the whole portfolio: Geist Mono only, flat (no blooms or glass), TUI panels, cyan kept"
+  },
+  {
+    "date": "2026-10-08",
+    "scope": "component: Ask me modal dialog on home (replaced the /ask page) + nav button",
+    "macrostructure": "Conversational FAQ (inside the dialog)",
+    "theme": "Aurora",
+    "genre": "atmospheric",
+    "nav": "N10-style bottom bar + outlined Ask me button",
+    "enrichment": "none",
+    "brief": "Ask-me LLM chat as a pop-up panel out of the nav bar, frontend only; POST /api/ask streams plain text, backend later"
+  },
+  {
+    "date": "2026-10-08",
+    "scope": "section: research (redesign)",
+    "macrostructure": "Marquee Hero",
+    "theme": "Aurora",
+    "genre": "atmospheric",
+    "enrichment": "E5 hand-built diagram kept",
+    "brief": "Research block: make it less. Cut method paragraph, shortened caption and facts"
+  },
+  {
     "date": "2026-09-29",
     "scope": "section: contact (redesign)",
     "macrostructure": "Marquee Hero",
