@@ -38,7 +38,7 @@ const HISTORY = 11;
 // Per-visitor cap so nobody can run up the bill on the key: LIMIT requests per IP per WINDOW.
 // ponytail: in-memory, so each server instance counts on its own and a restart resets it. Move the counter to
 // Upstash/Vercel KV if abuse gets past that.
-const LIMIT = 50;
+const LIMIT = 15;
 const WINDOW = 60 * 60 * 1000;
 const hits = new Map<string, { count: number; reset: number }>();
 
